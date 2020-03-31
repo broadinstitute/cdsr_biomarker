@@ -1,0 +1,12 @@
+Package: cds_biomarker
+Type: Package
+Title: R toolkit for biomarker analysis
+Version: 0.1.0
+Author: William Colgan
+Maintainer: William Colgan <wcolgan@broadinstitute.org>
+Description: cds_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and 
+  templates for standard analyses.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1

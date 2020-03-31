@@ -1,0 +1,52 @@
+---
+title: "cds_biomarker"
+output:
+  github_document:
+  html_notebook:
+    theme: united
+  html_document:
+    theme: united
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width = 7, fig.height = 7, cache = T)
+
+library(tidyverse)
+library(here)
+
+source(here("R/load.R"))
+source(here("R/linear_association.R"))
+```
+
+cds_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and templates for standard analyses.
+
+## Install
+
+To install cds_biomarker clone this repository then run this command:
+
+```{r, eval = FALSE}
+install.packages("PATH_TO_LIBRARY/cds_biomarker", repos = NULL, type = "source")
+```
+
+## Templates
+
+The [templates](https://github.com/broadinstitute/cds_biomarker/tree/master/templates) directory contains templates for standard analyses.
+
+* [multi_profile_comparision](https://github.com/broadinstitute/cds_biomarker/tree/master/templates) compares biomarkers for multiple response profiles e.g drug and genetic or multiple drugs.
+
+## Linear associations
+
+`lin_associations()` can be used to calcualte the linear associations between a vector of responses and a matrix of biomarker features.
+
+```{r results='hide'}
+omics <- load_omics()
+A <- omics[["RNA expression"]]
+y <- load_achilles("PAX8")
+```
+
+```{r}
+cls <- intersect(names(y),rownames(A))
+lin_associations(A[cls,],y[cls]) %>% arrange(p.val) %>% head(5)
+```
