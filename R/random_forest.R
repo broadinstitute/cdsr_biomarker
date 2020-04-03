@@ -28,8 +28,9 @@ require(data.table)
 #' 
 #' @export
 #'
-rf <- function(X, y, k = 10, n = 250){
+random.forest <- function(X, y, k = 10, n = 250){
   y <- y[is.finite(y)]  # only finite values
+  X <- X[, apply(X, 2, function(x) !any(is.na(x)))]
   cl <- sample(intersect(rownames(X), names(y)))  # overlapping rows
   X <- scale(X[cl,])  # scales the columns of X and selects overlapping lines
   y = y[cl]  # selects overlapping lines from y
