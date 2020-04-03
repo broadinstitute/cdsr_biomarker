@@ -1,8 +1,6 @@
 library(tidyverse)
 library(magrittr)
 library(useful)
-library(ggrepel)
-library(ggthemes)
 library(taigr)
 
 #' Calculates the linear association between a matrix or features A and a vector y. 

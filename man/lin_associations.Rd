@@ -4,8 +4,17 @@
 \alias{lin_associations}
 \title{Calculates the linear association between a matrix or features A and a vector y.}
 \usage{
-lin_associations(A, y, W = NULL, robust.se = F, scale.A = T,
-  scale.y = F, is.dependent = T, var.th = 0, coef.var = F)
+lin_associations(
+  A,
+  y,
+  W = NULL,
+  robust.se = F,
+  scale.A = T,
+  scale.y = F,
+  is.dependent = T,
+  var.th = 0,
+  coef.var = F
+)
 }
 \arguments{
 \item{A}{n x m numerical matrix of features (missing values are allowed).}
@@ -28,15 +37,15 @@ lin_associations(A, y, W = NULL, robust.se = F, scale.A = T,
 }
 \value{
 a data frame with the following columns
-    feat.A : column names of A
-   p.val : p-values computed for the null-hypothesis beta = 0
-   q.val : q-values computed using Benjamini-Hotchberg method
-   n : number of non-missing values for each column of A
-   betahat : estimated linear coefficient controlled for W
-   sebetahat ; standard error for the estimate of beta
-   lfdr and qvalue: local and global fdr values computed using adaptive shrinkage as 
+feat.A : column names of A
+p.val : p-values computed for the null-hypothesis beta = 0
+q.val : q-values computed using Benjamini-Hotchberg method
+n : number of non-missing values for each column of A
+betahat : estimated linear coefficient controlled for W
+sebetahat ; standard error for the estimate of beta
+lfdr and qvalue: local and global fdr values computed using adaptive shrinkage as 
 described in doi:10.1093/biostatistics/kxw041 
-   PosteriorMean and PosteriorSD : moderated effect size estimates and corresponding standard deviations, 
+PosteriorMean and PosteriorSD : moderated effect size estimates and corresponding standard deviations, 
 again computed with adaptive shrinkage.
 }
 \description{
