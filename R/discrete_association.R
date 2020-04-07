@@ -11,7 +11,7 @@ require(data.table)
 #' @return A table with the following columns:
 #' feature: the column names of X.
 #' effect_size: an estimate of the difference between groups.
-#' t: the t-statistic associated with the test on group differences.
+#' t.stat: the t-statistic associated with the test on group differences.
 #' p: the p-value of the t-statistic.
 #' q: the multiple hypothesis corrected p-value.
 #' 
@@ -44,8 +44,9 @@ discrete_test <- function(X, y) {
       # get t test results (two-sample unpaired)
       t <- stats::t.test(group, others)
       
-      result <- tibble(feature = feat, effect_size = t$estimate,
-                       t = t$statistic["t"], p = t$p.value)
+      # compile results and add to final table
+      result <- tibble(feature = feat, effect_size = t$estimate[1] - t$estimate[2],
+                       t.stat = t$statistic["t"], p = t$p.value)
       out_table %<>%
         dplyr::bind_rows(result)
     }

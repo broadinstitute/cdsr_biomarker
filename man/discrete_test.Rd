@@ -15,7 +15,7 @@ discrete_test(X, y)
 A table with the following columns:
 feature: the column names of X.
 effect_size: an estimate of the difference between groups.
-t: the t-statistic associated with the test on group differences.
+t.stat: the t-statistic associated with the test on group differences.
 p: the p-value of the t-statistic.
 q: the multiple hypothesis corrected p-value.
 }

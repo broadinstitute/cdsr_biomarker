@@ -28,7 +28,7 @@ require(data.table)
 #' 
 #' @export
 #'
-random.forest <- function(X, y, k = 10, n = 250){
+random_forest <- function(X, y, k = 10, n = 250){
   y <- y[is.finite(y)]  # only finite values
   X <- X[, apply(X, 2, function(x) !any(is.na(x)))]
   cl <- sample(intersect(rownames(X), names(y)))  # overlapping rows
@@ -104,7 +104,7 @@ random.forest <- function(X, y, k = 10, n = 250){
   # table of RF model level statistics
   # MSE = mean-squared error of predictions, MSE.se = standard deviation of MSE
   # R2 and Pearson are measures of model accuracy
-  model_table <- RF.table %>%
+  RF.table %<>%
     dplyr::mutate(MSE = mean(dplyr::distinct(SS, RF.mse, fold)$RF.mse,
                              na.rm =T),
                   MSE.se = sd(dplyr::distinct(SS, RF.mse, fold)$RF.mse,
@@ -112,9 +112,7 @@ random.forest <- function(X, y, k = 10, n = 250){
                   R2 = 1 - MSE/var(y[1:(k*N)], na.rm = T),
                   PearsonScore = cor(y[1:(k*N)], yhat_rf[1:(k*N)],
                                      use = "pairwise.complete.obs")) %>%
-    dplyr::distinct(MSE, MSE.se, R2, PearsonScore) %>%
     dplyr::mutate(type = "RF")
-  RF.table %<>% dplyr::left_join(model_table)
   
   # return importance table, model level table, and predictions
   return(list("model_table" = RF.table,
