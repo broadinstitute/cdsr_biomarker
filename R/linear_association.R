@@ -37,11 +37,13 @@ lin_associations = function(A, y, W = NULL, robust.se = F,
   mean.na = function(x) mean(x, na.rm = T)
   
   N = length(y);
-  y_ = scale(y, center = F, scale = scale.y)
+  y_ = scale(y, center = T, scale = scale.y)
   if (coef.var) {
-    A_ = scale(A[, apply(A,2,function(x) var(x,na.rm = T)/mean(x,na.rm = T)) > var.th], center = F, scale = scale.A)
+    A_ = A[, apply(A,2,function(x) var(x,na.rm = T)/mean(x,na.rm = T)) > var.th]
+    A_ = scale(A_, center = T, scale = scale.A)
   } else {
-    A_ = scale(A[, apply(A,2,function(x) var(x,na.rm = T)) > var.th], center = F, scale = scale.A)
+    A_ = A[, apply(A,2,function(x) var(x,na.rm = T)) > var.th]
+    A_ = scale(A_, center = T, scale = scale.A)
   }
   N.A = apply(A_, 2, function(x) sum(is.finite(x)))
   
