@@ -132,7 +132,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   }
   
   # write .csv if path given
-  if(!is.null(outpath)) {
+  if(!is.null(out_path)) {
     readr::write_csv(random_forest_table, paste(out_path, "rf_table.csv", sep = "/"))
     readr::write_csv(linear_table, paste(out_path, "lin_association_table.csv", sep = "/"))
     readr::write_csv(discrete_table, paste(out_path, "rf_table.csv", sep = "/"))
