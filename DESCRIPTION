@@ -4,9 +4,21 @@ Title: R toolkit for biomarker analysis
 Version: 0.1.0
 Author: William Colgan
 Maintainer: William Colgan <wcolgan@broadinstitute.org>
-Description: cds_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and 
+Description: cds_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and
   templates for standard analyses.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+  tidyverse,
+  taigr,
+  readr,
+  magrittr,
+  data.table,
+  ranger,
+  useful,
+  celllinemapr,
+  corpcor,
+  ashr,
+  stats
 RoxygenNote: 7.1.0
