@@ -44,8 +44,8 @@ require(readr)
 #'   feature: the column names of X.
 #'   effect_size: an estimate of the difference between groups.
 #'   t.stat: the t-statistic associated with the test on group differences.
-#'   p: the p-value of the t-statistic.
-#'   q: the multiple hypothesis corrected p-value.
+#'   p.value: the p-value of the t-statistic.
+#'   q.value: the multiple hypothesis corrected p-value.
 #'   pert: the column names of Y
 #'   }
 #' }
@@ -109,7 +109,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       res.disc <- discrete_test(X[overlap,], y[overlap])
       
       if(!is.null(p_cutoff)) {
-        res.disc %<>% dplyr::filter(p <= p_cutoff)
+        res.disc %<>% dplyr::filter(p.value <= p_cutoff)
       }
       
       discrete_table %<>% dplyr::bind_rows(res.disc %>%

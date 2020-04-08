@@ -16,8 +16,8 @@ A table with the following columns:
 feature: the column names of X.
 effect_size: an estimate of the difference between groups.
 t.stat: the t-statistic associated with the test on group differences.
-p: the p-value of the t-statistic.
-q: the multiple hypothesis corrected p-value.
+p.value: the p-value of the t-statistic.
+q.value: the multiple hypothesis corrected p-value.
 }
 \description{
 Performs t-tests on a matrix of binary features and a vector y.
