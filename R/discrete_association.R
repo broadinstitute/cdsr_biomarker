@@ -21,7 +21,7 @@ discrete_test <- function(X, y) {
   y <- y[is.finite(y)]  # only finite values
   X <- X[, apply(X, 2, function(x) !any(is.na(x)))]
   
-  out_table <- tibble()  # tracks output
+  out_table <- tibble::tibble()  # tracks output
   feats <- colnames(X)  # features to run tests on
   overlap <- dplyr::intersect(rownames(X), names(y))
   
@@ -45,8 +45,9 @@ discrete_test <- function(X, y) {
       t <- stats::t.test(group, others)
       
       # compile results and add to final table
-      result <- tibble(feature = feat, effect_size = t$estimate[1] - t$estimate[2],
-                       t.stat = t$statistic["t"], p = t$p.value)
+      result <- tibble::tibble(feature = feat,
+                               effect_size = t$estimate[1] - t$estimate[2],
+                               t.stat = t$statistic["t"], p = t$p.value)
       out_table %<>%
         dplyr::bind_rows(result)
     }

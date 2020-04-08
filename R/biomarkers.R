@@ -1,4 +1,6 @@
+require(tidyverse)
 require(taigr)
+require(magrittr)
 require(readr)
 
 #' Gets the biomarkers for each column in a matrix of responses using:
@@ -58,16 +60,16 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
                    "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
   
   # output tables
-  linear_table <- tibble()
-  discrete_table <- tibble()
-  random_forest_table <- tibble()
+  linear_table <- tibble::tibble()
+  discrete_table <- tibble::tibble()
+  random_forest_table <- tibble::tibble()
   
   # linear associations
   for(feat in linear_data) {
     
     # load feature set
-    X <-load.from.taiga(data.name='biomarker-features-699b', data.version=5,
-                        data.file=feat, quiet=T)
+    X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
+                                data.version=5, data.file=feat, quiet=T)
     
     # for each perturbation get results
     for(pert in colnames(Y)) {
@@ -92,8 +94,8 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   # repeat for discrete t-test
   for(feat in discrete_data) {
     
-    X <-load.from.taiga(data.name='biomarker-features-699b', data.version=5,
-                        data.file=feat, quiet=T)
+    X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
+                                data.version=5, data.file=feat, quiet=T)
     
     # only do test for colummns with more that 1 in group
     X <- X[,apply(X, 2, function(x) sum(x) > 1)]
@@ -114,8 +116,8 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   }
   # repeat for random forest
   for(feat in rf_data) {
-    X <-load.from.taiga(data.name='biomarker-features-699b', data.version=5,
-                        data.file=feat, quiet=T)
+    X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
+                                data.version=5, data.file=feat, quiet=T)
     for(pert in colnames(Y)) {
       y <- Y[,pert]; y <- y[is.finite(y)]; names(y) <- rownames(Y)
       
