@@ -1,0 +1,247 @@
+---
+title: "ADD TITLE HERE"
+author: "ADD AUTHOR HERE"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+  github_document: 
+  html_notebook:
+    theme: united
+  editor_options: 
+    chunk_output_type: console
+---
+
+```{r setup, echo=FALSE, include=FALSE}
+library(taigr)
+library(useful)
+library(cdsr)
+library(ggthemes)
+library(pbapply)
+library(parallel)
+library(htmltools)
+library(raster)
+library(DT)
+library(plotly)
+library(crosstalk)
+library(here)
+library(tidyverse)
+library(knitr)
+library(widgetframe)
+library(cowplot)
+library(ComplexHeatmap)
+
+source(here("R/biomarkers.R"))
+```
+
+```{r logo, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 7, fig.height = 7, cache = T)
+htmltools::img(src = knitr::image_uri(here("CDS_logo.png")), 
+               alt = 'logo', 
+               width="170px", height="180px",
+               style = 'position:absolute; top:20px; left:70%')
+```
+
+```{r load data,include = F}
+gene_effect <- load.from.taiga(data.name='depmap-a0ab',data.file='Achilles_gene_effect')[,"EGFR (1956)"] %>% 
+  enframe(name = "arxspan_id",value = "xpr_egfr")
+auc <- load.from.taiga(data.name='secondary-screen-15e6', data.file='secondary_merged_drc_parameters') %>% 
+  filter(repurposing_name %in% c("erlotinib","gefitinib","lapatinib")) %>% 
+  select(auc,repurposing_name,arxspan_id) %>% 
+  spread(key = "repurposing_name",value = "auc")
+y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = "arxspan_id") %>% as.matrix()
+```
+
+```{r get biomarkers, include = F,eval = F}
+biomarkers <- get_biomarkers(y)
+saveRDS(biomarkers,"~/Desktop/biomakers")
+```
+
+```{r}
+biomarkers <- readRDS("~/Desktop/biomakers")
+```
+
+# Profile similarity {.tabset}
+
+## Correlation
+
+```{r summary,fig.width = 5, fig.height= 5,out.width = "60%"}
+cor <- cor(y, use = "complete.obs")
+diag(cor) <- NA
+p <- plot_ly(
+    x = colnames(cor), y = rownames(cor),
+    z = cor, type = "heatmap"
+)
+p %>% config(displayModeBar = F)
+```
+
+## Pairwise {.tabset}
+
+```{r pairwise, results = 'asis', echo = FALSE,fig.width = 5, fig.height= 5,out.width = "60%"}
+for (pert_1 in rownames(cor)){
+  cat(sprintf('\n\n### %s {.tabset .tabset-pills}\n\n',pert_1))
+  for (pert_2 in rownames(cor)){
+    if (pert_1 != pert_2) {
+      cat(sprintf('\n\n#### %s \n\n',pert_2))
+      p <- y[,c(pert_1,pert_2)] %>% as_tibble() %>% ggplot(aes_string(pert_1,pert_2)) + geom_point() + geom_smooth(method = "lm") + 
+        theme_cowplot(12) + ggtitle(str_c("Correlation = ",cor[pert_1,pert_2]))
+      plot(p)
+    }
+  }
+}
+```
+
+
+# Discrete test {.tabset}
+
+```{r discrete test, results = 'asis', echo = FALSE}
+for (cur_feature_type in biomarkers$disc_table$feature_type %>% unique()) {
+  cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_type))
+  for (cur_pert in biomarkers$disc_table$pert %>% unique()) {
+    cat(sprintf('\n\n### %s \n\n', cur_pert))
+    cat('\n\n You can scroll through the table and select features to 
+      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+      them in the table.\n\n')
+    
+    df <- biomarkers$disc_table %>% 
+      dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & q < .1) %>%
+      arrange(q) %>% head(5000) %>% 
+      transmute(feature = feature,`effect size` = round(effect_size,4),
+                `-log10(q-value)` = round(-log10(q),4),
+                color = q < .01)
+    df[nrow(df),"color"] <- FALSE
+
+    sd <- highlight_key(select(df,-color),~feature)
+    
+    updatemenus <- list(list(showactive = FALSE,type = 'buttons',x = 1,y = 1.15,
+                             buttons = list(
+      list(label = "Reset",method = "relayout",args = list(list(shapes = c()))))))
+          
+    p <- plot_ly(type = "scatter", data = sd, x = ~`effect size`, y = ~`-log10(q-value)`,
+               text = ~feature, hoverinfo = "text", color = df$color, 
+               colors = c("darkgrey","darkorange"),
+               marker = list(line = list(width = 0))) %>% 
+      layout(xaxis = list(title = "effect size"), yaxis = list(title = "-log10(q-value)"),
+             showlegend = FALSE,updatemenus = updatemenus) %>% config(displayModeBar = F)
+    
+     p2 <-bscols(
+      ggplotly(p) %>%
+        highlight(color = rgb(0,0.4588,0.6901),on = "plotly_click",
+                  off = "plotly_relayout",opacityDim = 1),
+      datatable(sd, style="bootstrap", width="100%",
+                options = list(lengthChange = FALSE,scrollY = "300px",paging = FALSE)),
+      widths = c(6,6))
+     
+     c('\n\n')
+     cat(htmltools::knit_print.shiny.tag(p2))
+     #cat(htmltools::renderTags(p2)$html)
+     c('\n\n')
+  }
+}
+```
+
+
+# Linear association {.tabset}
+
+```{r linear association, results = 'asis', echo = FALSE}
+for (cur_feature_type in biomarkers$lin_table$feature_type %>% unique()) {
+  cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_type))
+  for (cur_pert in biomarkers$lin_table$pert %>% unique()) {
+    cat(sprintf('\n\n### %s \n\n', cur_pert))
+    cat('\n\n You can scroll through the table and select features to 
+      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+      them in the table.\n\n')
+    
+    df <- biomarkers$lin_table %>% 
+      dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & q.val.BH < .1) %>%
+      arrange(q.val.BH) %>% head(5000) %>% 
+      transmute(feature = feature,`effect size` = round(betahat,4),
+                `-log10(q-value)` = round(-log10(q.val.BH),4),
+                color = q.val.BH < .01)
+    df[nrow(df),"color"] <- FALSE
+
+    sd <- highlight_key(select(df,-color),~feature)
+    
+    updatemenus <- list(list(showactive = FALSE,type = 'buttons',x = 1,y = 1.15,
+                             buttons = list(
+      list(label = "Reset",method = "relayout",args = list(list(shapes = c()))))))
+          
+    p <- plot_ly(type = "scatter", data = sd, x = ~`effect size`, y = ~`-log10(q-value)`,
+               text = ~feature, hoverinfo = "text", color = df$color, 
+               colors = c("darkgrey","darkorange"),
+               marker = list(line = list(width = 0))) %>% 
+      layout(xaxis = list(title = "effect size"), yaxis = list(title = "-log10(q-value)"),
+             showlegend = FALSE,updatemenus = updatemenus) %>% config(displayModeBar = F)
+    
+     p2 <-bscols(
+      ggplotly(p) %>%
+        highlight(color = rgb(0,0.4588,0.6901),on = "plotly_click",
+                  off = "plotly_relayout",opacityDim = 1),
+      datatable(sd, style="bootstrap", width="100%",
+                options = list(lengthChange = FALSE,scrollY = "300px",paging = FALSE)),
+      widths = c(6,6))
+     
+     c('\n\n')
+     cat(htmltools::knit_print.shiny.tag(p2))
+     #cat(htmltools::renderTags(p2)$html)
+     c('\n\n')
+  }
+}
+```
+
+# Random forest {.tabset}
+
+```{r random forest, results = 'asis', echo = FALSE,fig.width = 8, fig.height= 5,out.width = "90%"}
+cat('\n\n## model accuracy\n\n')
+
+biomarkers$rf_table %>% group_by(pert,feature_set) %>% summarize(pearson = first(PearsonScore)) %>% 
+  ggplot(aes(pert,pearson,fill = feature_set)) + geom_col(position = "dodge") + 
+  theme_cowplot(10) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "perturbation", fill = "feature set") 
+
+for (cur_feature_set in biomarkers$rf_table$feature_set %>% unique()) {
+  cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_set))
+  for (cur_pert in biomarkers$rf_table$pert %>% unique()) {
+    cat(sprintf('\n\n### %s \n\n', cur_pert))
+    cat('\n\n You can scroll through the table and select features to 
+      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+      them in the table.\n\n')
+    
+    df <- biomarkers$rf_table %>% 
+      dplyr::filter(feature_set == cur_feature_set & pert == cur_pert) %>% 
+      transmute(feature = feature,`feature importance` = round(RF.imp.mean,4),
+                stability = round(RF.imp.stability,4),
+                color = str_split_fixed(feature,pattern = "_",n = 2)[,1])
+
+    sd <- highlight_key(select(df,-color),~feature)
+    
+    updatemenus <- list(list(showactive = FALSE,type = 'buttons',x = 1.2,y = 1.15,
+                             buttons = list(
+      list(label = "Reset",method = "relayout",args = list(list(shapes = c()))))))
+          
+    p <- plot_ly(type = "scatter", data = sd, x = ~`feature importance`, y = ~stability,
+               text = ~feature, hoverinfo = "text", color = df$color, colors = "Set1",
+               marker = list(line = list(width = 0))) %>% 
+      layout(xaxis = list(title = "feature importance"), yaxis = list(title = "stability"),
+             showlegend = TRUE,updatemenus = updatemenus) %>% config(displayModeBar = F)
+    
+     p2 <-bscols(
+      ggplotly(p) %>%
+        highlight(color = rgb(0,0.4588,0.6901),on = "plotly_click",
+                  off = "plotly_relayout",opacityDim = 1),
+      datatable(sd, style="bootstrap", width="100%",
+                options = list(lengthChange = FALSE,scrollY = "300px",paging = FALSE)),
+      widths = c(6,6))
+     
+     c('\n\n')
+     cat(htmltools::knit_print.shiny.tag(p2))
+     #cat(htmltools::renderTags(p2)$html)
+     c('\n\n')
+  }
+}
+```
+
+
+```{r, include = F}
+p2
+```
+

@@ -72,14 +72,14 @@ lin_associations = function(A, y, W = NULL, robust.se = F,
     eps.hat = A_ - as.matrix(y_) %*% t(beta.hat)}
   
   if(!robust.se){
-    res = tibble::tibble(feat.A = colnames(A_),
+    res = tibble::tibble(feature = colnames(A_),
                          beta.hat = beta.hat,
                          beta.se = sqrt(apply(eps.hat^2, 2, mean.na) / K / (N.A - 1 - dim(W_)[2])),
                          p.val = 2*pnorm(-abs(beta.hat / beta.se)),
                          q.val.BH = p.adjust(p.val, method = "BH"), 
                          n = N.A)
   } else{
-    res = tibble::tibble(feat.A = colnames(A_),
+    res = tibble::tibble(feature = colnames(A_),
                          beta.hat = beta.hat,
                          beta.se = sqrt(apply(A_^2 * eps.hat^2, 2, mean.na) / (N.A - 1 - dim(W_)[2]))/K , 
                          p.val = 2*pnorm(-abs(beta.hat / beta.se)),

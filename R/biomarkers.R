@@ -2,6 +2,11 @@ require(tidyverse)
 require(taigr)
 require(magrittr)
 require(readr)
+require(here)
+
+source(here("R/discrete_association.R"))
+source(here("R/linear_association.R"))
+source(here("R/random_forest.R"))
 
 #' Gets the biomarkers for each column in a matrix of responses using:
 #' random_forest
@@ -89,7 +94,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       
       # append to output tables
       linear_table %<>% dplyr::bind_rows(res.lin %>%
-                                           dplyr::mutate(pert = pert))
+          dplyr::mutate(pert = pert,feature_type = str_replace(feat,pattern = "_",replacement = " ")))
     }
   }
   # repeat for discrete t-test
@@ -113,7 +118,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       }
       
       discrete_table %<>% dplyr::bind_rows(res.disc %>%
-                                             dplyr::mutate(pert = pert))
+         dplyr::mutate(pert = pert,feature_type = str_replace(feat,pattern = "_",replacement = " ")))
     }
   }
   # repeat for random forest
@@ -127,12 +132,12 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       overlap <- dplyr::intersect(rownames(X), names(y))
       res.rf <- random_forest(X[overlap,], y[overlap])
       random_forest_table %<>% dplyr::bind_rows(res.rf$model_table %>% 
-                                                  dplyr::mutate(pert = pert))
+           dplyr::mutate(pert = pert,feature_set = str_replace(feat,pattern = "_",replacement = " ")))
     }
   }
   
   # write .csv if path given
-  if(!is.null(outpath)) {
+  if(!is.null(out_path)) {
     readr::write_csv(random_forest_table, paste(out_path, "rf_table.csv", sep = "/"))
     readr::write_csv(linear_table, paste(out_path, "lin_association_table.csv", sep = "/"))
     readr::write_csv(discrete_table, paste(out_path, "rf_table.csv", sep = "/"))
