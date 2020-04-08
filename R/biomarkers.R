@@ -74,7 +74,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
     # for each perturbation get results
     for(pert in colnames(Y)) {
       # select specific column and filter to finite values
-      y <- Y[,pert]; y <- y[is.finite(y)]; names(y) <- rownames(Y)
+      y <- Y[,pert]; names(y) <- rownames(Y); y <- y[is.finite(y)]
       
       # get overlapping data
       overlap <- dplyr::intersect(rownames(X), names(y))
@@ -101,7 +101,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
     X <- X[,apply(X, 2, function(x) sum(x) > 1)]
     
     for(pert in colnames(Y)) {
-      y <- Y[,pert]; y <- y[is.finite(y)]; names(y) <- rownames(Y)
+      y <- Y[,pert]; names(y) <- rownames(Y); y <- y[is.finite(y)]
       
       overlap <- dplyr::intersect(rownames(X), names(y))
       res.disc <- discrete_test(X[overlap,], y[overlap])
@@ -119,7 +119,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
     X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
                                 data.version=5, data.file=feat, quiet=T)
     for(pert in colnames(Y)) {
-      y <- Y[,pert]; y <- y[is.finite(y)]; names(y) <- rownames(Y)
+      y <- Y[,pert]; names(y) <- rownames(Y); y <- y[is.finite(y)]
       
       overlap <- dplyr::intersect(rownames(X), names(y))
       res.rf <- random_forest(X[overlap,], y[overlap])
