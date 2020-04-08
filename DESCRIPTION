@@ -1,4 +1,4 @@
-Package: cds_biomarker
+Package: cdsbiomarker
 Type: Package
 Title: R toolkit for biomarker analysis
 Version: 0.1.0
@@ -7,7 +7,7 @@ Authors@R: c(
   person("Andrew", "Boghossian", email = "aboghoss$broadinstitute.org", role = "aut"))
 Description: cds_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and
   templates for standard analyses.
-License: What license is it under?
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
