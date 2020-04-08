@@ -49,8 +49,8 @@ a list with components
   feature: the column names of X.
   effect_size: an estimate of the difference between groups.
   t.stat: the t-statistic associated with the test on group differences.
-  p: the p-value of the t-statistic.
-  q: the multiple hypothesis corrected p-value.
+  p.value: the p-value of the t-statistic.
+  q.value: the multiple hypothesis corrected p-value.
   pert: the column names of Y
   }
 }
