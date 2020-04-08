@@ -11,15 +11,15 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
-  tidyverse,
-  taigr,
-  readr,
-  magrittr,
-  data.table,
-  ranger,
-  useful,
+  ashr,
   celllinemapr,
   corpcor,
-  ashr,
-  stats
+  data.table,
+  magrittr,
+  ranger,
+  readr,
+  stats,
+  taigr,
+  tidyverse,
+  useful
 RoxygenNote: 7.1.0
