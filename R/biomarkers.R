@@ -58,6 +58,8 @@ source(here("R/random_forest.R"))
 #' @export
 #'
 get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
+  require(magrittr)
+  
   # lists tracking which feature sets are associated with which functions
   rf_data <- c("all_features", "ccle_features")
   discrete_data <- c("lineage", "mutation")
