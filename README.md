@@ -16,7 +16,7 @@ install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source"
 ## Reports
 
 The
-[reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/templates)
+[reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports)
 directory contains standard biomarker
     reports.
 

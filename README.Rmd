@@ -32,7 +32,7 @@ install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source"
 
 ## Reports
 
-The [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/templates) directory contains standard biomarker reports.
+The [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports) directory contains standard biomarker reports.
 
 * [multi_profile_biomarker_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports/multi_profile_biomarker_report.Rmd) compares biomarkers for multiple response profiles e.g drug and genetic or multiple drugs.
 
