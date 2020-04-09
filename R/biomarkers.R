@@ -61,10 +61,14 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   require(magrittr)
   
   # lists tracking which feature sets are associated with which functions
-  rf_data <- c("all_features", "ccle_features")
-  discrete_data <- c("lineage", "mutation")
-  linear_data <- c("copy_number", "dependency_shRNA", "dependency_XPR",
-                   "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
+  #rf_data <- c("all_features", "ccle_features")
+  #discrete_data <- c("lineage", "mutation")
+  #linear_data <- c("copy_number", "dependency_shRNA", "dependency_XPR",
+  #                 "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
+
+  rf_data <- c("ccle_features")
+  discrete_data <- c("lineage")
+  linear_data <- c("expression")
 
   # output tables
   linear_table <- tibble::tibble()
@@ -87,7 +91,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       # get overlapping data
       overlap <- dplyr::intersect(rownames(X), names(y))
       # calculate correlations
-      res.lin <- lin_associations(X[overlap,], y[overlap])
+      res.lin <- lin_associations(X[overlap,], y[overlap],scale.A = F)
 
       # if specified p-value cutoff, filter values above cutoff
       if(!is.null(p_cutoff)) {
@@ -149,4 +153,28 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   return(list("rf_table" = random_forest_table,
               "lin_table" = linear_table,
               "disc_table" = discrete_table))
+}
+
+#' Generates the multi response profile biomarker report
+#'
+#' @param out_path string path to folder. If Y is NULL this folder should contain biomarker
+#'  output files rf_table.csv etc... If Y is given the biomarker output files will be written to this 
+#'  folder
+#' @param title string title for the report
+#' @param Y optional n x p numerical matrix of responses to perturbations,
+#'   rownames must be Arxspan IDs (missing values are allowed).
+#' @param meta_data a dataframe containing meta data to include in the report
+#'
+#' @export
+#'
+generate_multi_profile_biomarker_report <- function(out_path,title,Y = NULL,meta_data = NULL) {
+  if(!is.null(Y)) {
+    get_biomarkers(Y,out_path = out_path)
+    y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
+  }
+  if(!is.null(meta_data)) {
+    meta_data %>% write_csv(paste(out_path, "meta_data.csv", sep = "/"))
+  }
+  rmarkdown::render(here("reports/multi_profile_biomarker_report.Rmd"), params = list(in_path = out_path, title = title),
+                    output_dir = out_path,output_file = title)
 }

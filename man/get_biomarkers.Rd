@@ -39,9 +39,9 @@ a list with components
   n : number of non-missing values for each column of A
   betahat : estimated linear coefficient controlled for W
   sebetahat ; standard error for the estimate of beta
-  lfdr and qvalue: local and global fdr values computed using adaptive shrinkage as 
-  described in doi:10.1093/biostatistics/kxw041 
-  PosteriorMean and PosteriorSD : moderated effect size estimates and corresponding standard deviations, 
+  lfdr and qvalue: local and global fdr values computed using adaptive shrinkage as
+  described in doi:10.1093/biostatistics/kxw041
+  PosteriorMean and PosteriorSD : moderated effect size estimates and corresponding standard deviations,
   again computed with adaptive shrinkage.
   pert: the column names of Y
   }

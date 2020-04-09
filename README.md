@@ -1,51 +1,91 @@
-cds\_biomarker
+cdsr\_biomarker
 ================
 
-cds\_biomarker is an R toolkit for biomarker analysis. It includes
-helpful functions and templates for standard analyses.
+cdsr\_biomarker is an R toolkit for biomarker analysis. It includes
+helpful functions and standard reports.
 
 ## Install
 
-To install cds\_biomarker clone this repository then run this
+To install cdsr\_biomarker clone this repository then run this
 command:
 
 ``` r
-install.packages("PATH_TO_LIBRARY/cds_biomarker", repos = NULL, type = "source")
+install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source")
 ```
 
-## Templates
+## Reports
 
 The
-[templates](https://github.com/broadinstitute/cds_biomarker/tree/master/templates)
-directory contains templates for standard
-    analyses.
+[reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/templates)
+directory contains standard biomarker
+    reports.
 
-  - [multi\_profile\_comparision](https://github.com/broadinstitute/cds_biomarker/tree/master/templates)
+  - [multi\_profile\_biomarker\_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports/multi_profile_biomarker_report.Rmd)
     compares biomarkers for multiple response profiles e.g drug and
     genetic or multiple drugs.
 
-## Linear associations
+There are wrapper functions in cdsr\_biomarker to automaticaly
+genenarate these reports. Here is an example:
 
-`lin_associations()` can be used to calcualte the linear associations
-between a vector of responses and a matrix of biomarker features.
+1.  Make a cell line by perturbation response matrix Y. Here I am using
+    Achilles data for EGFR and PRISM data for a few EGFR
+inhibitors.
+
+<!-- end list -->
 
 ``` r
-omics <- load_omics()
-A <- omics[["RNA expression"]]
-y <- load_achilles("PAX8")
+gene_effect <- load.from.taiga(data.name='depmap-a0ab',data.file='Achilles_gene_effect')[,"EGFR (1956)"] %>% 
+  enframe(name = "arxspan_id",value = "xpr_egfr")
+auc <- load.from.taiga(data.name='secondary-screen-15e6', data.file='secondary_merged_drc_parameters') %>% 
+  filter(repurposing_name %in% c("erlotinib","gefitinib","lapatinib")) %>% 
+  select(auc,repurposing_name,arxspan_id) %>% 
+  spread(key = "repurposing_name",value = "auc")
+Y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = "arxspan_id") %>% as.matrix()
 ```
 
 ``` r
-cls <- intersect(names(y),rownames(A))
-lin_associations(A[cls,],y[cls]) %>% arrange(p.val) %>% head(5)
+corner(Y)
 ```
 
-    ## # A tibble: 5 x 10
-    ##   feat.A     p.val  q.val.BH     n betahat sebetahat      lfdr    qvalue
-    ##   <chr>      <dbl>     <dbl> <int>   <dbl>     <dbl>     <dbl>     <dbl>
-    ## 1 GE_BX… 2.62e-109 1.34e-104   494  -0.230    0.0103 3.64e-105 3.64e-105
-    ## 2 GE_CE… 1.51e- 79 3.86e- 75   494  -0.201    0.0106 1.71e- 75 8.57e- 76
-    ## 3 GE_PA… 5.53e- 75 9.39e- 71   494  -0.284    0.0155 4.24e- 71 1.41e- 71
-    ## 4 GE_KC… 2.71e- 63 3.46e- 59   494  -0.188    0.0112 2.48e- 59 6.19e- 60
-    ## 5 GE_RH… 2.38e- 60 2.43e- 56   494  -0.189    0.0115 2.07e- 56 4.14e- 57
-    ## # … with 2 more variables: PosteriorMean <dbl>, PosteriorSD <dbl>
+    ##               xpr_egfr erlotinib gefitinib lapatinib
+    ## ACH-000004  0.18087325        NA        NA        NA
+    ## ACH-000005  0.06872322        NA        NA        NA
+    ## ACH-000007 -0.26860226 1.2249556 0.6756661 0.6937505
+    ## ACH-000009 -0.74045663        NA        NA        NA
+    ## ACH-000011 -0.10447016 0.7143025 0.7616728 0.7627777
+
+2.  Make a meta data table which will be displayed in the
+report
+
+<!-- end list -->
+
+``` r
+meta_data <- list(perturbation = colnames(Y), type = c("CRISPR","Drug","Drug","Drug")) %>% as_tibble()
+meta_data
+```
+
+    ## # A tibble: 4 x 2
+    ##   perturbation type  
+    ##   <chr>        <chr> 
+    ## 1 xpr_egfr     CRISPR
+    ## 2 erlotinib    Drug  
+    ## 3 gefitinib    Drug  
+    ## 4 lapatinib    Drug
+
+3.  Call the generate report function for the report you want. You will
+    need to give it a file path to save the results
+to.
+
+<!-- end list -->
+
+``` r
+generate_multi_profile_biomarker_report("~/Desktop/example/","example_title",Y,meta_data)
+```
+
+If you already have the biomarker results file and just want to generate
+the report you can do it like
+this:
+
+``` r
+generate_multi_profile_biomarker_report("~/Desktop/example/","example_title")
+```

@@ -1,18 +1,17 @@
-Package: cdsbiomarker
+Package: cdsrbiomarker
 Type: Package
 Title: R toolkit for biomarker analysis
 Version: 0.1.0
 Authors@R: c(
   person("William", "Colgan", email = "wcolgan@broadinstitute.org", role = "cre"),
   person("Andrew", "Boghossian", email = "aboghoss$broadinstitute.org", role = "aut"))
-Description: cds_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and
+Description: cdsr_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and
   templates for standard analyses.
 License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
   ashr,
-  celllinemapr,
   corpcor,
   data.table,
   limma,
@@ -24,17 +23,12 @@ Imports:
   taigr,
   tidyverse,
   useful,
-  ggthemes,
-  pbapply,
-  parallel,
   htmltools,
-  raster,
   DT,
   plotly,
+  heatmaply,
   crosstalk,
   here,
   knitr,
-  widgetframe,
   cowplot,
-  ComplexHeatmap
 RoxygenNote: 7.1.0

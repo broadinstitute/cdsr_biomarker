@@ -4,14 +4,8 @@
 \alias{run_lm_stats_limma}
 \title{Estimate linear-model stats for a matrix of data using limma with empirical Bayes moderated t-stats for p-values}
 \usage{
-run_lm_stats_limma(
-  mat,
-  vec,
-  covars = NULL,
-  weights = NULL,
-  target_type = "Gene",
-  limma_trend = FALSE
-)
+run_lm_stats_limma(mat, vec, covars = NULL, weights = NULL,
+  target_type = "Gene", limma_trend = FALSE)
 }
 \arguments{
 \item{mat:}{Nxp data matrix with N cell lines and p genes}

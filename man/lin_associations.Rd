@@ -4,17 +4,8 @@
 \alias{lin_associations}
 \title{Calculates the linear association between a matrix or features A and a vector y.}
 \usage{
-lin_associations(
-  A,
-  y,
-  W = NULL,
-  robust.se = F,
-  scale.A = T,
-  scale.y = F,
-  is.dependent = T,
-  var.th = 0,
-  coef.var = F
-)
+lin_associations(A, y, W = NULL, robust.se = F, scale.A = T,
+  scale.y = F, is.dependent = T, var.th = 0, coef.var = F)
 }
 \arguments{
 \item{A}{n x m numerical matrix of features (missing values are allowed).}
