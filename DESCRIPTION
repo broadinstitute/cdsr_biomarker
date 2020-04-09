@@ -23,5 +23,18 @@ Imports:
   stats,
   taigr,
   tidyverse,
-  useful
+  useful,
+  ggthemes,
+  pbapply,
+  parallel,
+  htmltools,
+  raster,
+  DT,
+  plotly,
+  crosstalk,
+  here,
+  knitr,
+  widgetframe,
+  cowplot,
+  ComplexHeatmap
 RoxygenNote: 7.1.0
