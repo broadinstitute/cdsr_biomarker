@@ -94,7 +94,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
 
       # append to output tables
       linear_table %<>% dplyr::bind_rows(res.lin %>%
-          dplyr::mutate(pert = pert, feature_type = feat)
+          dplyr::mutate(pert = pert, feature_type = feat))
     }
   }
   # repeat for discrete t-test
@@ -118,7 +118,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       }
 
       discrete_table %<>% dplyr::bind_rows(res.disc %>%
-         dplyr::mutate(pert = pert, feature_type = feat)
+         dplyr::mutate(pert = pert, feature_type = feat))
     }
   }
   # repeat for random forest
@@ -132,7 +132,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       overlap <- dplyr::intersect(rownames(X), names(y))
       res.rf <- random_forest(X[overlap,], y[overlap])
       random_forest_table %<>% dplyr::bind_rows(res.rf$model_table %>%
-           dplyr::mutate(pert = pert, feature_set = feat)
+           dplyr::mutate(pert = pert, feature_set = feat))
     }
   }
 
