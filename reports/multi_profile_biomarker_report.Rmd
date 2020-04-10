@@ -31,8 +31,8 @@ source(here("R/biomarkers.R"))
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 7, fig.height = 7, cache = F)
 htmltools::img(src = knitr::image_uri(here("CDS_logo.png")), 
                alt = 'logo', 
-               width="130px", height="150px",
-               style = 'position:absolute; top:10px; left:80%')
+               width="150px", height="170px",
+               style = 'position:absolute; top:10px; left:75%')
 ```
 
 ```{r load data,include = F}
@@ -46,17 +46,22 @@ lin_table <- read_csv(str_c(params$in_path,"/lin_association_table.csv"))
 rf_table <- read_csv(str_c(params$in_path,"/rf_table.csv"))
 ```
 
+This report presents biomarker analysis results for one or more response profiles. <br/> 
+To navigate through this report click on the blue tabs under each heading.
+
 # Response profiles {.tabset}
+
+These tabs provide information about the response profiles included in this report.
 
 ## Info
 
-```{r}
+```{r echo = FALSE}
 datatable(meta_data, style="bootstrap", width="100%",options = list(lengthChange = FALSE))
 ```
 
 ## Correlation
 
-```{r summary,fig.width = 6, fig.height= 5,out.width = "60%"}
+```{r echo = FALSE,fig.width = 6, fig.height= 5,out.width = "60%"}
 cor <- cor(y, use = "complete.obs")
 diag(cor) <- NA
 p <- plot_ly(
@@ -66,31 +71,18 @@ p <- plot_ly(
 p %>% colorbar(title = "Correlation") %>% layout(xaxis = list(tickangle = 90)) %>% config(displayModeBar = F)
 ```
 
-
-```{r pairwise, results = 'asis', echo = FALSE,fig.width = 5, fig.height= 5,out.width = "60%",eval = F}
-for (pert_1 in rownames(cor)){
-  cat(sprintf('\n\n### %s {.tabset .tabset-pills}\n\n',pert_1))
-  for (pert_2 in rownames(cor)){
-    if (pert_1 != pert_2) {
-      cat(sprintf('\n\n#### %s \n\n',pert_2))
-      p <- y[,c(pert_1,pert_2)] %>% as_tibble() %>% ggplot(aes_string(pert_1,pert_2)) + geom_point() + geom_smooth(method = "lm") + 
-        theme_cowplot(12) + ggtitle(str_c("Correlation = ",cor[pert_1,pert_2]))
-      plot(p)
-    }
-  }
-}
-```
-
-
 # Discrete test {.tabset}
+
+These tabs presents results for discrete features. The **effect size** is the difference between each feature and 
+all others and the **q-value** is a t-test corrected for multiple hypotheses testing.  
 
 ```{r discrete test, results = 'asis', echo = FALSE}
 for (cur_feature_type in disc_table$feature_type %>% unique()) {
   cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_type))
   for (cur_pert in disc_table$pert %>% unique()) {
     cat(sprintf('\n\n### %s \n\n', cur_pert))
-    cat('\n\n You can scroll through the table and select features to 
-      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+    cat('\n\n You can scroll through the table to select features to 
+      highlight in the volcano plot or select points in the volcano plot to view 
       them in the table.\n\n')
     
     df <- disc_table %>% 
@@ -131,7 +123,7 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
   }
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
-      depictated. \n\n')
+      across the response profiles are shown. \n\n')
   ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>% 
     mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
@@ -145,22 +137,24 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
 }
 ```
 
-
 # Linear association {.tabset}
+
+These tabs presents results for continuous features. The **z-score** and **q-value** are calculated using linear modeling approach. 
+Specifically, the **z-score** is the mean/standard deviation of the moderated effect size based on adaptive shrinkage.
 
 ```{r linear association, results = 'asis', echo = FALSE}
 for (cur_feature_type in lin_table$feature_type %>% unique()) {
   cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_type))
   for (cur_pert in lin_table$pert %>% unique()) {
     cat(sprintf('\n\n### %s \n\n', cur_pert))
-    cat('\n\n You can scroll through the table and select features to 
-      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+    cat('\n\n You can scroll through the table to select features to 
+      highlight in the volcano plot or select points in the volcano plot to view 
       them in the table.\n\n')
     
     df <- lin_table %>% 
       dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & qvalue < .1) %>%
       arrange(qvalue) %>% head(2000) %>% 
-      transmute(feature = str_sub(feature,0,20),`z score` = round(PosteriorMean/PosteriorSD,4),
+      transmute(feature = str_sub(feature,0,20),`z-score` = round(z.score,4),
                 `-log10(q-value)` = round(-log10(qvalue),4),
                 color = qvalue < .01)
 
@@ -173,11 +167,11 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
     colors <- df %>% arrange(color) %>% 
       mutate(color = ifelse(color,"darkorange","darkgrey")) %>% .[["color"]] %>% unique()
     
-    p <- plot_ly(type = "scatter", data = sd, x = ~`z score`, y = ~`-log10(q-value)`,
+    p <- plot_ly(type = "scatter", data = sd, x = ~`z-score`, y = ~`-log10(q-value)`,
                text = ~feature, hoverinfo = "text", color = df$color, 
                colors = colors,
                marker = list(line = list(width = 0))) %>% 
-      layout(xaxis = list(title = "z score"), yaxis = list(title = "-log10(q-value)"),
+      layout(xaxis = list(title = "z-score"), yaxis = list(title = "-log10(q-value)"),
              showlegend = FALSE,updatemenus = updatemenus) %>% config(displayModeBar = F)
     
      p2 <-bscols(
@@ -194,7 +188,7 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
   }
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
-      depictated. \n\n')
+      across the response profiles are shown. \n\n')
   ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>% 
     mutate(rank = dense_rank(qvalue)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
@@ -211,8 +205,12 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
 
 # Random forest {.tabset}
 
+These tabs presents random forest results for different feature sets. **Feature importance** is the importance of the feature in the random forstest and **stability** is the stability of that feature are folds in 10-fold cross validation.
+
 ```{r random forest, results = 'asis', echo = FALSE,fig.width = 7, fig.height= 5,out.width = "70%"}
 cat('\n\n## model accuracy\n\n')
+cat('\n\n This plot shows the pearson correlation between the random forest predictions 
+    and the measured values.\n\n')
 
 rf_table %>% group_by(pert,feature_set) %>% 
   dplyr::summarize(pearson = first(PearsonScore)) %>% 
@@ -224,8 +222,8 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
   cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_set))
   for (cur_pert in rf_table$pert %>% unique()) {
     cat(sprintf('\n\n### %s \n\n', cur_pert))
-    cat('\n\n You can scroll through the table and select features to 
-      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+    cat('\n\n You can scroll through the table to select features to 
+      highlight in the plot or select points in the plot to view 
       them in the table.\n\n')
     
     df <- rf_table %>% 
@@ -259,8 +257,8 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
      c('\n\n')
   }
   cat('\n\n### shared \n\n')
-  cat('\n\n To generate this plot biomarkers for each response profile are ranked by feature importance. The 50 biomarkers with the 
-    lowest average rank are depictated. \n\n')
+  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
+      across the response profiles are shown. \n\n')
   ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% group_by(pert) %>% 
     mutate(rank = dense_rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
