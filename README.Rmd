@@ -1,5 +1,5 @@
 ---
-title: "cdsr_biomarker"
+title: "cdsrbiomarker"
 output:
   github_document:
   html_notebook:
@@ -16,19 +16,32 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width = 7, fig.heigh
 library(tidyverse)
 library(here)
 library(useful)
+library(cdsrbiomarker)
 
 source(here("R/biomarkers.R"))
 ```
 
-cdsr_biomarker is an R toolkit for biomarker analysis. It includes helpful functions and standard reports.
+cdsrbiomarker is an R toolkit for biomarker analysis. It includes helpful functions and standard reports.
 
 ## Install
 
-To install cdsr_biomarker clone this repository then run this command:
+To install cdsrbiomarker clone this repository then run this command:
 
 ```{r, eval = FALSE}
 install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source")
 ```
+
+## Taiga
+
+Many of the function in the package use data which is stored on taiga. If you are at the Broad you can install taigr the taira client for R by following the instruction [here](https://github.com/broadinstitute/taigr)
+
+## Biomarker functions
+
+### discrete_test
+
+### lin_associations
+
+### random_forest
 
 ## Reports
 
@@ -36,9 +49,9 @@ The [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/repor
 
 * [multi_profile_biomarker_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports/multi_profile_biomarker_report.Rmd) compares biomarkers for multiple response profiles e.g drug and genetic or multiple drugs.
 
-There are wrapper functions in cdsr_biomarker to automaticaly genenarate these reports. Here is an example:
+There are wrapper functions in cdsrbiomarker to automaticaly genenarate these reports. Here is an example using Achilles data for EGFR and PRISM data for a few EGFR inhibitors:
 
-1. Make a cell line by perturbation response matrix Y. Here I am using Achilles data for EGFR and PRISM data for a few EGFR inhibitors.
+1. Make a cell line by perturbation response matrix Y.
 
 ```{r include = F}
 gene_effect <- load.from.taiga(data.name='depmap-a0ab',data.file='Achilles_gene_effect')[,"EGFR (1956)"] %>% 
@@ -64,7 +77,7 @@ Y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = 
 corner(Y)
 ```
 
-2. Make a meta data table which will be displayed in the report
+2. Make a meta data table which will be displayed in the report.
 
 ```{r}
 meta_data <- list(perturbation = colnames(Y), type = c("CRISPR","Drug","Drug","Drug")) %>% as_tibble()
@@ -74,12 +87,12 @@ meta_data
 3. Call the generate report function for the report you want. You will need to give it a file path to save the results to.
 
 ```{r eval = F}
-generate_multi_profile_biomarker_report("~/Desktop/example/","example_title",Y,meta_data)
+cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example/","example_title",Y,meta_data)
 ```
 
-If you already have the biomarker results file and just want to generate the report you can do it like this:
+4. If you already have the biomarker results files and just want to generate the report you can do it like this:
 
 ```{r eval = F}
-generate_multi_profile_biomarker_report("~/Desktop/example/","example_title")
+cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example","example_title")
 ```
 

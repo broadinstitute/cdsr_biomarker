@@ -13,11 +13,13 @@ discrete_test(X, y)
 }
 \value{
 A table with the following columns:
-feature: the column names of X.
-effect_size: an estimate of the difference between groups.
-t.stat: the t-statistic associated with the test on group differences.
-p.value: the p-value of the t-statistic.
-q.value: the multiple hypothesis corrected p-value.
+\describe{
+feature: the column names of X. \cr
+effect_size: an estimate of the difference between groups. \cr
+t.stat: the t-statistic associated with the test on group differences. \cr
+p.value: the p-value of the t-statistic. \cr
+q.value: the multiple hypothesis corrected p-value. \cr
+}
 }
 \description{
 Performs t-tests on a matrix of binary features and a vector y.

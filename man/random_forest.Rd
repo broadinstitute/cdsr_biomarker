@@ -18,16 +18,16 @@ random_forest(X, y, k = 10, n = 250)
 \value{
 a list with components
 \describe{
-  \item{model_table}{A table with the following columns:
-  feature: the column names of X.
-  RF.imp.mean: an estimate of the importance of that feature for model accuracy.
-  RF.imp.sd: the standard deviation of the importance estimate.
-  RF.imp.stability: the proportion of models that used this feature.
-  rank: the rank of the feature in terms of importance for the model.
-  MSE: the mean-squared error of the model.
-  MSE.se: the standard error of the MSE.
-  R2: the \eqn{R^2} of the model.
-  PearsonScore: the Pearson correlation of predicted and observed responses.
+  \item{model_table}{A table with the following columns: \cr
+  feature: the column names of X. \cr
+  RF.imp.mean: an estimate of the importance of that feature for model accuracy. \cr 
+  RF.imp.sd: the standard deviation of the importance estimate. \cr 
+  RF.imp.stability: the proportion of models that used this feature. \cr
+  rank: the rank of the feature in terms of importance for the model. \cr 
+  MSE: the mean-squared error of the model. \cr 
+  MSE.se: the standard error of the MSE. \cr
+  R2: the \eqn{R^2} of the model. \cr
+  PearsonScore: the Pearson correlation of predicted and observed responses. \cr 
   }
   \item{predictions}{A vector of the responses predicted by the random forest.}
 }

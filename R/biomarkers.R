@@ -3,10 +3,7 @@ require(taigr)
 require(magrittr)
 require(readr)
 require(here)
-
-source(here("R/discrete_association.R"))
-source(here("R/linear_association.R"))
-source(here("R/random_forest.R"))
+require(cdsrbiomarker)
 
 #' Gets the biomarkers for each column in a matrix of responses using:
 #' random_forest
@@ -20,38 +17,39 @@ source(here("R/random_forest.R"))
 #'
 #' @return a list with components
 #' \describe{
-#'   \item{rf_table}{A table with the following columns:
-#'   feature: the column names of X.
-#'   RF.imp.mean: an estimate of the importance of that feature for model accuracy.
-#'   RF.imp.sd: the standard deviation of the importance estimate.
-#'   RF.imp.stability: the proportion of models that used this feature.
-#'   rank: the rank of the feature in terms of importance for the model.
-#'   MSE: the mean-squared error of the model.
-#'   MSE.se: the standard error of the MSE.
-#'   R2: the \eqn{R^2} of the model.
-#'   PearsonScore: the Pearson correlation of predicted and observed responses.
-#'   pert: the column names of Y
+#'   \item{rf_table}{A table with the following columns: \cr
+#'   feature: the column names of X. \cr
+#'   RF.imp.mean: an estimate of the importance of that feature for model accuracy. \cr
+#'   RF.imp.sd: the standard deviation of the importance estimate. \cr
+#'   RF.imp.stability: the proportion of models that used this feature. \cr
+#'   rank: the rank of the feature in terms of importance for the model. \cr
+#'   MSE: the mean-squared error of the model. \cr
+#'   MSE.se: the standard error of the MSE. \cr
+#'   R2: the \eqn{R^2} of the model. \cr
+#'   PearsonScore: the Pearson correlation of predicted and observed responses. \cr
+#'   pert: the column names of Y \cr
 #'   }
-#'   \item{lin_table}{A table with the following columns:
-#'   feat.A : column names of A
-#'   p.val : p-values computed for the null-hypothesis beta = 0
-#'   q.val : q-values computed using Benjamini-Hotchberg method
-#'   n : number of non-missing values for each column of A
-#'   betahat : estimated linear coefficient controlled for W
-#'   sebetahat ; standard error for the estimate of beta
-#'   lfdr and qvalue: local and global fdr values computed using adaptive shrinkage as
-#'   described in doi:10.1093/biostatistics/kxw041
-#'   PosteriorMean and PosteriorSD : moderated effect size estimates and corresponding standard deviations,
-#'   again computed with adaptive shrinkage.
-#'   pert: the column names of Y
+#'   \item{lin_table}{A table with the following columns: \cr
+#'   feature:  column names of A \cr
+#'   p.val: p-values computed for the null-hypothesis beta = 0 \cr
+#'   q.val: q-values computed using Benjamini-Hotchberg method \cr
+#'   n: number of non-missing values for each column of A \cr
+#'   betahat: estimated linear coefficient controlled for W \cr
+#'   sebetahat: standard error for the estimate of beta \cr
+#'   sebetahat: standard error for the estimate of beta \cr
+#'   lfdr: local and global fdr values computed using adaptive shrinkage as \cr
+#'   qvalue: local and global fdr values computed using adaptive shrinkage as \cr
+#'   PosteriorMean: moderated effect size estimates again computed with adaptive shrinkage \cr
+#'   PosteriorSD: standard deviations of moderated effect size estimates \cr
+#'   z.score: z-score PosteriorMean/PosteriorSD \cr
 #'   }
 #'   \item{disc_table}{A table with the following columns:
-#'   feature: the column names of X.
-#'   effect_size: an estimate of the difference between groups.
-#'   t.stat: the t-statistic associated with the test on group differences.
-#'   p.value: the p-value of the t-statistic.
-#'   q.value: the multiple hypothesis corrected p-value.
-#'   pert: the column names of Y
+#'   feature: the column names of X. \cr
+#'   effect_size: an estimate of the difference between groups. \cr
+#'   t.stat: the t-statistic associated with the test on group differences. \cr
+#'   p.value: the p-value of the t-statistic. \cr
+#'   q.value: the multiple hypothesis corrected p-value. \cr
+#'   pert: the column names of Y \cr
 #'   }
 #' }
 #'
@@ -87,7 +85,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       # get overlapping data
       overlap <- dplyr::intersect(rownames(X), names(y))
       # calculate correlations
-      res.lin <- lin_associations(X[overlap,], y[overlap],scale.A = F)
+      res.lin <- cdsrbiomarker::lin_associations(X[overlap,], y[overlap],scale.A = F)
 
       # if specified p-value cutoff, filter values above cutoff
       if(!is.null(p_cutoff)) {
@@ -113,7 +111,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       y <- y[is.finite(y)]
 
       overlap <- dplyr::intersect(rownames(X), names(y))
-      res.disc <- discrete_test(X[overlap,], y[overlap])
+      res.disc <- cdsrbiomarker::discrete_test(X[overlap,], y[overlap])
 
       if(!is.null(p_cutoff)) {
         res.disc %<>% dplyr::filter(p.value <= p_cutoff)
@@ -132,7 +130,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       y <- y[is.finite(y)]
 
       overlap <- dplyr::intersect(rownames(X), names(y))
-      res.rf <- random_forest(X[overlap,], y[overlap])
+      res.rf <- cdsrbiomarker::random_forest(X[overlap,], y[overlap])
       random_forest_table %<>% dplyr::bind_rows(res.rf$model_table %>%
            dplyr::mutate(pert = pert, feature_set = feat))
     }
@@ -159,13 +157,13 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
 #' @param title string title for the report
 #' @param Y optional n x p numerical matrix of responses to perturbations,
 #'   rownames must be Arxspan IDs (missing values are allowed).
-#' @param meta_data a dataframe containing meta data to include in the report
+#' @param meta_data optional a dataframe containing meta data to include in the report
 #'
 #' @export
 #'
 generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, meta_data = NULL) {
   if(!is.null(Y)) {
-    get_biomarkers(Y,out_path = out_path)
+    cdsrbiomarker::get_biomarkers(Y,out_path = out_path)
     y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
   }
   if(!is.null(meta_data)) {

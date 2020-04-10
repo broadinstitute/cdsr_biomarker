@@ -2,19 +2,10 @@
 % Please edit documentation in R/linear_association.R
 \name{lin_associations}
 \alias{lin_associations}
-\title{Calculates the linear association between a matrix or features A and a vector y.}
+\title{Calculates the linear association between a matrix of features A and a vector y.}
 \usage{
-lin_associations(
-  A,
-  y,
-  W = NULL,
-  robust.se = F,
-  scale.A = T,
-  scale.y = F,
-  is.dependent = T,
-  var.th = 0,
-  coef.var = F
-)
+lin_associations(A, y, W = NULL, robust.se = F, scale.A = T,
+  scale.y = F, is.dependent = T, var.th = 0, coef.var = F)
 }
 \arguments{
 \item{A}{n x m numerical matrix of features (missing values are allowed).}
@@ -36,18 +27,21 @@ lin_associations(
 \item{coef.var}{boolean to control if the coefficient of variation is used.}
 }
 \value{
-a data frame with the following columns
-feat.A : column names of A
-p.val : p-values computed for the null-hypothesis beta = 0
-q.val : q-values computed using Benjamini-Hotchberg method
-n : number of non-missing values for each column of A
-betahat : estimated linear coefficient controlled for W
-sebetahat ; standard error for the estimate of beta
-lfdr and qvalue: local and global fdr values computed using adaptive shrinkage as 
-described in doi:10.1093/biostatistics/kxw041 
-PosteriorMean and PosteriorSD : moderated effect size estimates and corresponding standard deviations, 
-again computed with adaptive shrinkage.
+A table with the following columns:
+\describe{
+feature:  column names of A \cr
+p.val: p-values computed for the null-hypothesis beta = 0 \cr
+q.val: q-values computed using Benjamini-Hotchberg method \cr
+n: number of non-missing values for each column of A \cr
+betahat: estimated linear coefficient controlled for W \cr
+sebetahat: standard error for the estimate of beta \cr
+sebetahat: standard error for the estimate of beta \cr
+lfdr: local and global fdr values computed using adaptive shrinkage as \cr
+qvalue: local and global fdr values computed using adaptive shrinkage as \cr
+PosteriorMean: moderated effect size estimates again computed with adaptive shrinkage \cr
+PosteriorSD: standard deviations of moderated effect size estimates \cr
+z.score: z-score PosteriorMean/PosteriorSD}
 }
 \description{
-Calculates the linear association between a matrix or features A and a vector y.
+Calculates the linear association between a matrix of features A and a vector y.
 }

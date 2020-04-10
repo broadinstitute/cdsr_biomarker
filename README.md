@@ -1,17 +1,32 @@
-cdsr\_biomarker
+cdsrbiomarker
 ================
 
-cdsr\_biomarker is an R toolkit for biomarker analysis. It includes
+cdsrbiomarker is an R toolkit for biomarker analysis. It includes
 helpful functions and standard reports.
 
 ## Install
 
-To install cdsr\_biomarker clone this repository then run this
+To install cdsrbiomarker clone this repository then run this
 command:
 
 ``` r
 install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source")
 ```
+
+## Taiga
+
+Many of the function in the package use data which is stored on taiga.
+If you are at the Broad you can install taigr the taira client for R by
+following the instruction
+[here](https://github.com/broadinstitute/taigr)
+
+## Biomarker functions
+
+### discrete\_test
+
+### lin\_associations
+
+### random\_forest
 
 ## Reports
 
@@ -24,12 +39,12 @@ directory contains standard biomarker
     compares biomarkers for multiple response profiles e.g drug and
     genetic or multiple drugs.
 
-There are wrapper functions in cdsr\_biomarker to automaticaly
-genenarate these reports. Here is an example:
+There are wrapper functions in cdsrbiomarker to automaticaly genenarate
+these reports. Here is an example using Achilles data for EGFR and PRISM
+data for a few EGFR inhibitors:
 
-1.  Make a cell line by perturbation response matrix Y. Here I am using
-    Achilles data for EGFR and PRISM data for a few EGFR
-inhibitors.
+1.  Make a cell line by perturbation response matrix
+Y.
 
 <!-- end list -->
 
@@ -55,7 +70,7 @@ corner(Y)
     ## ACH-000011 -0.10447016 0.7143025 0.7616728 0.7627777
 
 2.  Make a meta data table which will be displayed in the
-report
+report.
 
 <!-- end list -->
 
@@ -79,13 +94,15 @@ to.
 <!-- end list -->
 
 ``` r
-generate_multi_profile_biomarker_report("~/Desktop/example/","example_title",Y,meta_data)
+cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example/","example_title",Y,meta_data)
 ```
 
-If you already have the biomarker results file and just want to generate
-the report you can do it like
+4.  If you already have the biomarker results files and just want to
+    generate the report you can do it like
 this:
 
+<!-- end list -->
+
 ``` r
-generate_multi_profile_biomarker_report("~/Desktop/example/","example_title")
+cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example","example_title")
 ```
