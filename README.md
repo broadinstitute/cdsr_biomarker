@@ -16,9 +16,9 @@ install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source"
 ## Taiga
 
 Many of the function in the package use data which is stored on taiga.
-If you are at the Broad you can install taigr the taira client for R by
+If you are at the Broad you can install taigr the taiga client for R by
 following the instruction
-[here](https://github.com/broadinstitute/taigr)
+[here](https://github.com/broadinstitute/taigr).
 
 ## Biomarker functions
 
@@ -31,11 +31,11 @@ following the instruction
 ## Reports
 
 The
-[reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/ints/reports)
+[reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports)
 directory contains standard biomarker
     reports.
 
-  - [multi\_profile\_biomarker\_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/ints/reports/multi_profile_biomarker_report.Rmd)
+  - [multi\_profile\_biomarker\_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports/multi_profile_biomarker_report.Rmd)
     compares biomarkers for multiple response profiles e.g drug and
     genetic or multiple drugs.
 
@@ -51,23 +51,14 @@ Y.
 ``` r
 gene_effect <- load.from.taiga(data.name='depmap-a0ab',data.file='Achilles_gene_effect')[,"EGFR (1956)"] %>% 
   enframe(name = "arxspan_id",value = "xpr_egfr")
-```
-
-    ## Fetching https://cds.team/taiga/api/datafile?format=metadata&dataset_permaname=depmap-a0ab&datafile_name=Achilles_gene_effect 
-    ## Status 200
-
-``` r
 auc <- load.from.taiga(data.name='secondary-screen-15e6', data.file='secondary_merged_drc_parameters') %>% 
   filter(repurposing_name %in% c("erlotinib","gefitinib","lapatinib")) %>% 
   select(auc,repurposing_name,arxspan_id) %>% 
   spread(key = "repurposing_name",value = "auc")
+Y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = "arxspan_id") %>% as.matrix()
 ```
 
-    ## Fetching https://cds.team/taiga/api/datafile?format=metadata&dataset_permaname=secondary-screen-15e6&datafile_name=secondary_merged_drc_parameters 
-    ## Status 200
-
 ``` r
-Y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = "arxspan_id") %>% as.matrix()
 corner(Y)
 ```
 
@@ -108,7 +99,7 @@ cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example/","exa
 
 4.  If you already have the biomarker results files and just want to
     generate the report you can do it like
-this:
+this.
 
 <!-- end list -->
 
