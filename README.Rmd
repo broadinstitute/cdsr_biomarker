@@ -23,10 +23,9 @@ cdsrbiomarker is an R toolkit for biomarker analysis. It includes helpful functi
 
 ## Install
 
-To install cdsrbiomarker clone this repository then run this command:
-
 ```{r, eval = FALSE}
-install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source")
+library(devtools)
+devtools::install_github("broadinstitute/cdsr_biomarker")
 ```
 
 ## Taiga

@@ -6,11 +6,9 @@ helpful functions and standard reports.
 
 ## Install
 
-To install cdsrbiomarker clone this repository then run this
-command:
-
 ``` r
-install.packages("PATH_TO_LIBRARY/cdsr_biomarker", repos = NULL, type = "source")
+library(devtools)
+devtools::install_github("broadinstitute/cdsr_biomarker")
 ```
 
 ## Taiga
