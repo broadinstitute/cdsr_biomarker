@@ -1,7 +1,7 @@
 ---
 output:
   html_document:
-  github_document: 
+  github_document:
   html_notebook:
 params:
   in_path: NULL
@@ -19,18 +19,15 @@ library(htmltools)
 library(DT)
 library(plotly)
 library(crosstalk)
-library(here)
 library(cowplot)
 library(tidyverse)
 library(heatmaply)
-
-source(here("R/biomarkers.R"))
 ```
 
 ```{r logo, echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 7, fig.height = 7, cache = F)
-htmltools::img(src = knitr::image_uri(here("CDS_logo.png")), 
-               alt = 'logo', 
+htmltools::img(src = knitr::image_uri("./CDS_logo.png"),
+               alt = 'logo',
                width="130px", height="150px",
                style = 'position:absolute; top:10px; left:80%')
 ```
@@ -73,7 +70,7 @@ for (pert_1 in rownames(cor)){
   for (pert_2 in rownames(cor)){
     if (pert_1 != pert_2) {
       cat(sprintf('\n\n#### %s \n\n',pert_2))
-      p <- y[,c(pert_1,pert_2)] %>% as_tibble() %>% ggplot(aes_string(pert_1,pert_2)) + geom_point() + geom_smooth(method = "lm") + 
+      p <- y[,c(pert_1,pert_2)] %>% as_tibble() %>% ggplot(aes_string(pert_1,pert_2)) + geom_point() + geom_smooth(method = "lm") +
         theme_cowplot(12) + ggtitle(str_c("Correlation = ",cor[pert_1,pert_2]))
       plot(p)
     }
@@ -89,33 +86,33 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
   cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_type))
   for (cur_pert in disc_table$pert %>% unique()) {
     cat(sprintf('\n\n### %s \n\n', cur_pert))
-    cat('\n\n You can scroll through the table and select features to 
-      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+    cat('\n\n You can scroll through the table and select features to
+      highlight them in the volcano plot. Similarly can select points in the volcano plot to view
       them in the table.\n\n')
-    
-    df <- disc_table %>% 
+
+    df <- disc_table %>%
       dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & q.value < .1) %>%
-      arrange(q.value) %>% head(2000) %>% 
+      arrange(q.value) %>% head(2000) %>%
       transmute(feature = feature,`effect size` = round(effect_size,4),
                 `-log10(q-value)` = round(-log10(q.value),4),
                 color = q.value < .01)
-    
-    colors <- df %>% arrange(color) %>% 
+
+    colors <- df %>% arrange(color) %>%
       mutate(color = ifelse(color,"darkorange","darkgrey")) %>% .[["color"]] %>% unique()
 
     sd <- highlight_key(select(df,-color),~feature)
-    
+
     updatemenus <- list(list(showactive = FALSE,type = 'buttons',x = 1,y = 1.15,
                              buttons = list(
       list(label = "Reset",method = "relayout",args = list(list(shapes = c()))))))
-          
+
     p <- plot_ly(type = "scatter", data = sd, x = ~`effect size`, y = ~`-log10(q-value)`,
-               text = ~feature, hoverinfo = "text", color = df$color, 
+               text = ~feature, hoverinfo = "text", color = df$color,
                colors = colors,
-               marker = list(line = list(width = 0))) %>% 
+               marker = list(line = list(width = 0))) %>%
       layout(xaxis = list(title = "effect size"), yaxis = list(title = "-log10(q-value)"),
              showlegend = FALSE,updatemenus = updatemenus) %>% config(displayModeBar = F)
-    
+
      p2 <-bscols(
       ggplotly(p) %>%
         highlight(color = rgb(0,0.4588,0.6901),on = "plotly_click",
@@ -123,7 +120,7 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
       datatable(sd, style="bootstrap", width="100%",
                 options = list(lengthChange = FALSE,scrollY = "300px",paging = FALSE)),
       widths = c(6,6))
-     
+
      c('\n\n')
      cat(htmltools::knit_print.shiny.tag(p2))
      #cat(htmltools::renderTags(p2)$html)
@@ -132,8 +129,8 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       depictated. \n\n')
-  ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>% 
-    mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
+  ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>%
+    mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>%
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
@@ -153,33 +150,33 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
   cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_type))
   for (cur_pert in lin_table$pert %>% unique()) {
     cat(sprintf('\n\n### %s \n\n', cur_pert))
-    cat('\n\n You can scroll through the table and select features to 
-      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+    cat('\n\n You can scroll through the table and select features to
+      highlight them in the volcano plot. Similarly can select points in the volcano plot to view
       them in the table.\n\n')
-    
-    df <- lin_table %>% 
+
+    df <- lin_table %>%
       dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & qvalue < .1) %>%
-      arrange(qvalue) %>% head(2000) %>% 
+      arrange(qvalue) %>% head(2000) %>%
       transmute(feature = str_sub(feature,0,20),`z score` = round(PosteriorMean/PosteriorSD,4),
                 `-log10(q-value)` = round(-log10(qvalue),4),
                 color = qvalue < .01)
 
     sd <- highlight_key(select(df,-color),~feature)
-    
+
     updatemenus <- list(list(showactive = FALSE,type = 'buttons',x = 1,y = 1.15,
                              buttons = list(
       list(label = "Reset",method = "relayout",args = list(list(shapes = c()))))))
-    
-    colors <- df %>% arrange(color) %>% 
+
+    colors <- df %>% arrange(color) %>%
       mutate(color = ifelse(color,"darkorange","darkgrey")) %>% .[["color"]] %>% unique()
-    
+
     p <- plot_ly(type = "scatter", data = sd, x = ~`z score`, y = ~`-log10(q-value)`,
-               text = ~feature, hoverinfo = "text", color = df$color, 
+               text = ~feature, hoverinfo = "text", color = df$color,
                colors = colors,
-               marker = list(line = list(width = 0))) %>% 
+               marker = list(line = list(width = 0))) %>%
       layout(xaxis = list(title = "z score"), yaxis = list(title = "-log10(q-value)"),
              showlegend = FALSE,updatemenus = updatemenus) %>% config(displayModeBar = F)
-    
+
      p2 <-bscols(
       ggplotly(p) %>%
         highlight(color = rgb(0,0.4588,0.6901),on = "plotly_click",
@@ -187,7 +184,7 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
       datatable(sd, style="bootstrap", width="100%",
                 options = list(lengthChange = FALSE,scrollY = "300px",paging = FALSE)),
       widths = c(6,6))
-     
+
      c('\n\n')
      cat(htmltools::knit_print.shiny.tag(p2))
      c('\n\n')
@@ -195,8 +192,8 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       depictated. \n\n')
-  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>% 
-    mutate(rank = dense_rank(qvalue)) %>% select(feature,rank,pert) %>% 
+  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>%
+    mutate(rank = dense_rank(qvalue)) %>% select(feature,rank,pert) %>%
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   ranks[ranks > 500] <- 500
@@ -214,38 +211,38 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
 ```{r random forest, results = 'asis', echo = FALSE,fig.width = 7, fig.height= 5,out.width = "70%"}
 cat('\n\n## model accuracy\n\n')
 
-rf_table %>% group_by(pert,feature_set) %>% 
-  dplyr::summarize(pearson = first(PearsonScore)) %>% 
-  ggplot(aes(pert,pearson,fill = feature_set)) + geom_col(position = "dodge") + 
+rf_table %>% group_by(pert,feature_set) %>%
+  dplyr::summarize(pearson = first(PearsonScore)) %>%
+  ggplot(aes(pert,pearson,fill = feature_set)) + geom_col(position = "dodge") +
   theme_cowplot(10) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  labs(x = "perturbation", fill = "feature set") 
+  labs(x = "perturbation", fill = "feature set")
 
 for (cur_feature_set in rf_table$feature_set %>% unique()) {
   cat(sprintf('\n\n## %s {.tabset .tabset-pills}\n\n', cur_feature_set))
   for (cur_pert in rf_table$pert %>% unique()) {
     cat(sprintf('\n\n### %s \n\n', cur_pert))
-    cat('\n\n You can scroll through the table and select features to 
-      highlight them in the volcano plot. Similarly can select points in the volcano plot to view 
+    cat('\n\n You can scroll through the table and select features to
+      highlight them in the volcano plot. Similarly can select points in the volcano plot to view
       them in the table.\n\n')
-    
-    df <- rf_table %>% 
-      dplyr::filter(feature_set == cur_feature_set & pert == cur_pert) %>% 
+
+    df <- rf_table %>%
+      dplyr::filter(feature_set == cur_feature_set & pert == cur_pert) %>%
       transmute(feature = feature,`feature importance` = round(RF.imp.mean,4),
                 stability = round(RF.imp.stability,4),
                 color = str_split_fixed(feature,pattern = "_",n = 2)[,1])
 
     sd <- highlight_key(select(df,-color),~feature)
-    
+
     updatemenus <- list(list(showactive = FALSE,type = 'buttons',x = 1.2,y = 1.15,
                              buttons = list(
       list(label = "Reset",method = "relayout",args = list(list(shapes = c()))))))
-          
+
     p <- plot_ly(type = "scatter", data = sd, x = ~`feature importance`, y = ~stability,
                text = ~feature, hoverinfo = "text", color = df$color, colors = "Set1",
-               marker = list(line = list(width = 0))) %>% 
+               marker = list(line = list(width = 0))) %>%
       layout(xaxis = list(title = "feature importance"), yaxis = list(title = "stability"),
              showlegend = TRUE,updatemenus = updatemenus) %>% config(displayModeBar = F)
-    
+
      p2 <-bscols(
       ggplotly(p) %>%
         highlight(color = rgb(0,0.4588,0.6901),on = "plotly_click",
@@ -253,16 +250,16 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
       datatable(sd, style="bootstrap", width="100%",
                 options = list(lengthChange = FALSE,scrollY = "300px",paging = FALSE)),
       widths = c(6,6))
-     
+
      c('\n\n')
      cat(htmltools::knit_print.shiny.tag(p2))
      c('\n\n')
   }
   cat('\n\n### shared \n\n')
-  cat('\n\n To generate this plot biomarkers for each response profile are ranked by feature importance. The 50 biomarkers with the 
+  cat('\n\n To generate this plot biomarkers for each response profile are ranked by feature importance. The 50 biomarkers with the
     lowest average rank are depictated. \n\n')
-  ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% group_by(pert) %>% 
-    mutate(rank = dense_rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
+  ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% group_by(pert) %>%
+    mutate(rank = dense_rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>%
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
@@ -273,5 +270,3 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
   c('\n\n')
 }
 ```
-
-
