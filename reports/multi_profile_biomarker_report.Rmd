@@ -214,7 +214,8 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
 ```{r random forest, results = 'asis', echo = FALSE,fig.width = 7, fig.height= 5,out.width = "70%"}
 cat('\n\n## model accuracy\n\n')
 
-rf_table %>% group_by(pert,feature_set) %>% summarize(pearson = first(PearsonScore)) %>% 
+rf_table %>% group_by(pert,feature_set) %>% 
+  dplyr::summarize(pearson = first(PearsonScore)) %>% 
   ggplot(aes(pert,pearson,fill = feature_set)) + geom_col(position = "dodge") + 
   theme_cowplot(10) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(x = "perturbation", fill = "feature set") 

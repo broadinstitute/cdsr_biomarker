@@ -61,15 +61,11 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   require(magrittr)
   
   # lists tracking which feature sets are associated with which functions
-  #rf_data <- c("all_features", "ccle_features")
-  #discrete_data <- c("lineage", "mutation")
-  #linear_data <- c("copy_number", "dependency_shRNA", "dependency_XPR",
-  #                 "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
-
-  rf_data <- c("ccle_features")
-  discrete_data <- c("lineage")
-  linear_data <- c("expression")
-
+  rf_data <- c("all_features", "ccle_features")
+  discrete_data <- c("lineage", "mutation")
+  linear_data <- c("copy_number", "dependency_shRNA", "dependency_XPR",
+                  "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
+  
   # output tables
   linear_table <- tibble::tibble()
   discrete_table <- tibble::tibble()
@@ -167,7 +163,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
 #'
 #' @export
 #'
-generate_multi_profile_biomarker_report <- function(out_path,title,Y = NULL,meta_data = NULL) {
+generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, meta_data = NULL) {
   if(!is.null(Y)) {
     get_biomarkers(Y,out_path = out_path)
     y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
@@ -175,6 +171,7 @@ generate_multi_profile_biomarker_report <- function(out_path,title,Y = NULL,meta
   if(!is.null(meta_data)) {
     meta_data %>% write_csv(paste(out_path, "meta_data.csv", sep = "/"))
   }
-  rmarkdown::render(here("reports/multi_profile_biomarker_report.Rmd"), params = list(in_path = out_path, title = title),
+  rmarkdown::render(here::here("reports/multi_profile_biomarker_report.Rmd"),
+                    params = list(in_path = out_path, title = title),
                     output_dir = out_path,output_file = title)
 }

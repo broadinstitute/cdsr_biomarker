@@ -30,5 +30,5 @@ Imports:
   crosstalk,
   here,
   knitr,
-  cowplot,
+  cowplot
 RoxygenNote: 7.1.0
