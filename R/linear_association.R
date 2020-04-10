@@ -88,6 +88,7 @@ lin_associations = function(A, y, W = NULL, robust.se = F,
                          q.val.BH = p.adjust(p.val, method = "BH"),
                          n = N.A)}
   
+  res$beta.se[res$beta.se < .000001] <- .000001 # deals with bug in ash
   res = dplyr::bind_cols(res[,c(1,4,5,6)], 
                          ashr::ash(res$beta.hat, res$beta.se)$result[,c(1,2,7,8,9,10)])
   

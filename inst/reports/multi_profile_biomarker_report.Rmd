@@ -23,8 +23,6 @@ library(here)
 library(cowplot)
 library(tidyverse)
 library(heatmaply)
-
-source(here("R/biomarkers.R"))
 ```
 
 ```{r logo, echo=FALSE}
@@ -124,8 +122,8 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       across the response profiles are shown. \n\n')
-  ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>% 
-    mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
+  ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
+    dplyr::mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
@@ -189,8 +187,8 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       across the response profiles are shown. \n\n')
-  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% group_by(pert) %>% 
-    mutate(rank = dense_rank(qvalue)) %>% select(feature,rank,pert) %>% 
+  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
+    dplyr::mutate(rank = rank(qvalue)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   ranks[ranks > 500] <- 500
@@ -259,8 +257,8 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       across the response profiles are shown. \n\n')
-  ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% group_by(pert) %>% 
-    mutate(rank = dense_rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
+  ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% dplyr::group_by(pert) %>% 
+    dplyr::mutate(rank = rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()

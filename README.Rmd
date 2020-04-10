@@ -14,11 +14,9 @@ editor_options:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width = 7, fig.height = 7, cache = T)
 
 library(tidyverse)
-library(here)
 library(useful)
+library(taigr)
 library(cdsrbiomarker)
-
-source(here("R/biomarkers.R"))
 ```
 
 cdsrbiomarker is an R toolkit for biomarker analysis. It includes helpful functions and standard reports.
@@ -45,15 +43,15 @@ Many of the function in the package use data which is stored on taiga. If you ar
 
 ## Reports
 
-The [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports) directory contains standard biomarker reports.
+The [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/ints/reports) directory contains standard biomarker reports.
 
-* [multi_profile_biomarker_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/reports/multi_profile_biomarker_report.Rmd) compares biomarkers for multiple response profiles e.g drug and genetic or multiple drugs.
+* [multi_profile_biomarker_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/ints/reports/multi_profile_biomarker_report.Rmd) compares biomarkers for multiple response profiles e.g drug and genetic or multiple drugs.
 
 There are wrapper functions in cdsrbiomarker to automaticaly genenarate these reports. Here is an example using Achilles data for EGFR and PRISM data for a few EGFR inhibitors:
 
 1. Make a cell line by perturbation response matrix Y.
 
-```{r include = F}
+```{r warning = FALSE, message = F}
 gene_effect <- load.from.taiga(data.name='depmap-a0ab',data.file='Achilles_gene_effect')[,"EGFR (1956)"] %>% 
   enframe(name = "arxspan_id",value = "xpr_egfr")
 auc <- load.from.taiga(data.name='secondary-screen-15e6', data.file='secondary_merged_drc_parameters') %>% 
@@ -61,19 +59,6 @@ auc <- load.from.taiga(data.name='secondary-screen-15e6', data.file='secondary_m
   select(auc,repurposing_name,arxspan_id) %>% 
   spread(key = "repurposing_name",value = "auc")
 Y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = "arxspan_id") %>% as.matrix()
-```
-
-```{r eval = F}
-gene_effect <- load.from.taiga(data.name='depmap-a0ab',data.file='Achilles_gene_effect')[,"EGFR (1956)"] %>% 
-  enframe(name = "arxspan_id",value = "xpr_egfr")
-auc <- load.from.taiga(data.name='secondary-screen-15e6', data.file='secondary_merged_drc_parameters') %>% 
-  filter(repurposing_name %in% c("erlotinib","gefitinib","lapatinib")) %>% 
-  select(auc,repurposing_name,arxspan_id) %>% 
-  spread(key = "repurposing_name",value = "auc")
-Y <- full_join(gene_effect,auc, by = "arxspan_id") %>% column_to_rownames(var = "arxspan_id") %>% as.matrix()
-```
-
-```{r}
 corner(Y)
 ```
 
@@ -93,6 +78,6 @@ cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example/","exa
 4. If you already have the biomarker results files and just want to generate the report you can do it like this:
 
 ```{r eval = F}
-cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example","example_title")
+cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example","example")
 ```
 

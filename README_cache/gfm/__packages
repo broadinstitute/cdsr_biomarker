@@ -8,13 +8,9 @@ purrr
 dplyr
 stringr
 forcats
-here
 useful
+cdsrbiomarker
 bitops
 RCurl
 httr
 taigr
-magrittr
-ranger
-data.table
-cdsrbiomarker

@@ -62,6 +62,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   linear_data <- c("copy_number", "dependency_shRNA", "dependency_XPR",
                   "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
 
+
   # output tables
   linear_table <- tibble::tibble()
   discrete_table <- tibble::tibble()
@@ -162,7 +163,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
 generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, meta_data = NULL) {
   if(!is.null(Y)) {
     get_biomarkers(Y, out_path = out_path)
-    y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
+    Y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
   }
   if(!is.null(meta_data)) {
     meta_data %>% write_csv(paste(out_path, "meta_data.csv", sep = "/"))
