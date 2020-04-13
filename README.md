@@ -11,27 +11,62 @@ library(devtools)
 devtools::install_github("broadinstitute/cdsr_biomarker")
 ```
 
+The package can then be loaded by calling
+
+``` r
+library(cdsrbiomarker)
+```
+
 ## Taiga
 
 Many of the function in the package use data which is stored on taiga.
 If you are at the Broad you can install taigr the taiga client for R by
-following the instruction
+following the instructions
 [here](https://github.com/broadinstitute/taigr).
 
 ## Biomarker functions
 
+These functions are used to analyze potential biomarkers based on a
+response vector and a feature matrix.
+
 ### discrete\_test
+
+Compares binary features, such as lineage and mutation, running a t-test
+on the difference in mean response between cell lines with the feature
+and without it. Run on response vector `y` and feature matrix `X`
+
+``` r
+cdsrbiomarker::discrete_test(X, y)
+```
 
 ### lin\_associations
 
+Compares continuous features, such as gene expression, calculating
+correlations between response and each feature. Run on feature matrix
+`A`, response vector `y`, and an optional matrix of confounders `W`.
+Other parameters can also be tuned and are explained in the function
+documentation.
+
+``` r
+cdsrbiomarker::lin_associations(A, y, W=NULL)
+```
+
 ### random\_forest
+
+Fits a random forest to a feature matrix `X` and a response vector `y`
+returning estimates of variable importance for each feature, as well as
+model level statistics such as R-squared. Other parameters can also be
+tuned and are explained in the function documentation.
+
+``` r
+cdsrbiomarker::random_forest(X, y)
+```
 
 ## Reports
 
 The
 [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports)
-directory contains standard biomarker
-    reports.
+directory contains standard biomarker reports.
 
   - [multi\_profile\_biomarker\_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports/multi_profile_biomarker_report.Rmd)
     compares biomarkers for multiple response profiles e.g drug and
@@ -41,8 +76,7 @@ There are wrapper functions in cdsrbiomarker to automaticaly genenarate
 these reports. Here is an example using Achilles data for EGFR and PRISM
 data for a few EGFR inhibitors:
 
-1.  Make a cell line by perturbation response matrix
-Y.
+1.  Make a cell line by perturbation response matrix Y.
 
 <!-- end list -->
 
@@ -67,8 +101,7 @@ corner(Y)
     ## ACH-000009 -0.74045663        NA        NA        NA
     ## ACH-000011 -0.10447016 0.7143025 0.7616728 0.7627777
 
-2.  Make a meta data table which will be displayed in the
-report.
+2.  Make a meta data table which will be displayed in the report.
 
 <!-- end list -->
 
@@ -86,8 +119,7 @@ meta_data
     ## 4 lapatinib    Drug
 
 3.  Call the generate report function for the report you want. You will
-    need to give it a file path to save the results
-to.
+    need to give it a file path to save the results to.
 
 <!-- end list -->
 
@@ -96,8 +128,7 @@ cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example/","exa
 ```
 
 4.  If you already have the biomarker results files and just want to
-    generate the report you can do it like
-this.
+    generate the report you can do it like this.
 
 <!-- end list -->
 
