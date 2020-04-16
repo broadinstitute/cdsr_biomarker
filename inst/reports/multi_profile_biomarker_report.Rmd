@@ -124,7 +124,8 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
       across the response profiles are shown. \n\n')
   ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
+    spread(key = "pert",value = "rank") %>% 
+    tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
   fig <- heatmaply(t(ranks[top_shared_biomarkers,]),dendrogram = "none",colors = viridis(n = 256, direction = -1),
@@ -189,7 +190,8 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
       across the response profiles are shown. \n\n')
   ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = rank(qvalue)) %>% select(feature,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
+    spread(key = "pert",value = "rank") %>% 
+    tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   ranks[ranks > 500] <- 500
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
@@ -259,7 +261,8 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
       across the response profiles are shown. \n\n')
   ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% column_to_rownames(var = "feature") %>% as.matrix()
+    spread(key = "pert",value = "rank") %>% 
+    tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
   fig <- heatmaply(t(ranks[top_shared_biomarkers,]),dendrogram = "none",colors = viridis(n = 256, direction = -1),
