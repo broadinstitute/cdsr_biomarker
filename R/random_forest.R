@@ -27,12 +27,15 @@ require(ranger)
 #'
 #' @export
 #'
-random_forest <- function(X, y, k = 10, n = 250){
+random_forest <- function(X, y, k = 10, n = 500){
   y <- y[is.finite(y)]  # only finite values
   X <- X[, apply(X, 2, function(x) !any(is.na(x)))]
+  
+  # make sure data aligns
   cl <- sample(dplyr::intersect(rownames(X), names(y)))  # overlapping rows
   X <- scale(X[cl,])  # scales the columns of X and selects overlapping lines
-  y = y[cl]  # selects overlapping lines from y
+  y <- y[cl]  # selects overlapping lines from y
+  
   colnames(X) %<>% make.names()  # ensure unique column names
 
   N = floor(length(cl)/k)  # size of each test set (dataset size / num cv cycles)
@@ -67,18 +70,12 @@ random_forest <- function(X, y, k = 10, n = 250){
     # extract variable importance metrics from RF model
     ss <- tibble::tibble(feature = names(rf$variable.importance),
                          RF.imp = rf$variable.importance / sum(rf$variable.importance),
-                         RF.mse = mean((yhat_rf[test] - y[test])^2),
                          fold = kx)
 
     # add results from this step of cross-validation to overall model
     SS %<>%
       dplyr::bind_rows(ss)
   }
-
-  # separate into RF table and one large table of model level statistics
-  # RF table will have mean variable importances for each feature
-
-  model_table <- tibble::tibble()  # model level statistics (empty for now)
 
   # importances table in matrix form (feature by CV run with values as importances)
   RF.importances <- SS %>%
@@ -100,17 +97,18 @@ random_forest <- function(X, y, k = 10, n = 250){
     dplyr::arrange(desc(RF.imp.mean)) %>%
     dplyr::mutate(rank = 1:n())
 
-  # table of RF model level statistics
+  # model level statistics
   # MSE = mean-squared error of predictions, MSE.se = standard deviation of MSE
   # R2 and Pearson are measures of model accuracy
+  mse <- mean((yhat_rf - y)^2)
+  mse.se <- sqrt(var((yhat_rf - y)^2))/sqrt(length(y))
+  r2 <- 1 - (mse/var(y))
+  ps <- cor(y, yhat_rf, use = "pairwise.complete.obs")
   RF.table %<>%
-    dplyr::mutate(MSE = mean(dplyr::distinct(SS, RF.mse, fold)$RF.mse,
-                             na.rm =T),
-                  MSE.se = sd(dplyr::distinct(SS, RF.mse, fold)$RF.mse,
-                              na.rm = T),
-                  R2 = 1 - MSE/var(y[1:(k*N)], na.rm = T),
-                  PearsonScore = cor(y[1:(k*N)], yhat_rf[1:(k*N)],
-                                     use = "pairwise.complete.obs"))
+    dplyr::mutate(MSE = mse,
+                  MSE.se = mse.se,
+                  R2 = r2,
+                  PearsonScore = ps)
 
   # return importance table, model level table, and predictions
   return(list("model_table" = RF.table,
