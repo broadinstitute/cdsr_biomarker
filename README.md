@@ -66,7 +66,12 @@ cdsrbiomarker::random_forest(X, y)
 
 The
 [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports)
-directory contains standard biomarker reports.
+directory contains standard biomarker
+    reports.
+
+  - [single\_profile\_biomarker\_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports/single_profile_biomarker_report.Rmd)
+    generates a biomarker report for a single response
+    profile.
 
   - [multi\_profile\_biomarker\_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports/multi_profile_biomarker_report.Rmd)
     compares biomarkers for multiple response profiles e.g drug and
@@ -76,7 +81,8 @@ There are wrapper functions in cdsrbiomarker to automaticaly genenarate
 these reports. Here is an example using Achilles data for EGFR and PRISM
 data for a few EGFR inhibitors:
 
-1.  Make a cell line by perturbation response matrix Y.
+1.  Make a cell line by perturbation response matrix
+Y.
 
 <!-- end list -->
 
@@ -95,13 +101,14 @@ corner(Y)
 ```
 
     ##               xpr_egfr erlotinib gefitinib lapatinib
-    ## ACH-000004  0.18087325        NA        NA        NA
-    ## ACH-000005  0.06872322        NA        NA        NA
-    ## ACH-000007 -0.26860226 1.2249556 0.6756661 0.6937505
-    ## ACH-000009 -0.74045663        NA        NA        NA
-    ## ACH-000011 -0.10447016 0.7143025 0.7616728 0.7627777
+    ## ACH-000004  0.16303435        NA        NA        NA
+    ## ACH-000005  0.05234623        NA        NA        NA
+    ## ACH-000007 -0.27242329 1.2249556 0.6756661 0.6937505
+    ## ACH-000009 -0.78660538        NA        NA        NA
+    ## ACH-000011 -0.10197377 0.7143025 0.7616728 0.7627777
 
-2.  Make a meta data table which will be displayed in the report.
+2.  Make a meta data table which will be displayed in the
+report.
 
 <!-- end list -->
 
@@ -119,7 +126,8 @@ meta_data
     ## 4 lapatinib    Drug
 
 3.  Call the generate report function for the report you want. You will
-    need to give it a file path to save the results to.
+    need to give it a file path to save the results
+to.
 
 <!-- end list -->
 
@@ -128,7 +136,8 @@ cdsrbiomarker::generate_multi_profile_biomarker_report("~/Desktop/example/","exa
 ```
 
 4.  If you already have the biomarker results files and just want to
-    generate the report you can do it like this.
+    generate the report you can do it like
+this.
 
 <!-- end list -->
 

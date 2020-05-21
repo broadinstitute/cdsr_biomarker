@@ -173,3 +173,29 @@ generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, m
                     params = list(in_path = out_path, title = title),
                     output_dir = out_path,output_file = title)
 }
+
+#' Generates the single response profile biomarker report
+#'
+#' @param out_path string path to folder. If Y is NULL this folder should contain biomarker
+#'  output files rf_table.csv etc... If Y is given the biomarker output files will be written to this
+#'  folder
+#' @param title string title for the report
+#' @param Y optional n x p numerical matrix of responses to perturbations,
+#'   rownames must be Arxspan IDs (missing values are allowed).
+#' @param meta_data optional a dataframe containing meta data to include in the report
+#'
+#' @export
+#'
+generate_single_profile_biomarker_report <- function(out_path, title, Y = NULL, meta_data = NULL) {
+  if(!is.null(Y)) {
+    get_biomarkers(Y, out_path = out_path)
+    Y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
+  }
+  if(!is.null(meta_data)) {
+    meta_data %>% write_csv(paste(out_path, "meta_data.csv", sep = "/"))
+  }
+  rmarkdown::render(system.file("reports", "multi_single_biomarker_report.Rmd",
+                                package = "cdsrbiomarker"),
+                    params = list(in_path = out_path, title = title),
+                    output_dir = out_path,output_file = title)
+}

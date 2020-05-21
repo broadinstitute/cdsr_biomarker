@@ -70,6 +70,8 @@ cdsrbiomarker::random_forest(X, y)
 
 The [reports](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports) directory contains standard biomarker reports.
 
+* [single_profile_biomarker_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports/single_profile_biomarker_report.Rmd) generates a biomarker report for a single response profile.
+
 * [multi_profile_biomarker_report](https://github.com/broadinstitute/cdsr_biomarker/tree/master/inst/reports/multi_profile_biomarker_report.Rmd) compares biomarkers for multiple response profiles e.g drug and genetic or multiple drugs.
 
 There are wrapper functions in cdsrbiomarker to automaticaly genenarate these reports. Here is an example using Achilles data for EGFR and PRISM data for a few EGFR inhibitors:

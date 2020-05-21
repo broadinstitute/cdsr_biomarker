@@ -33,18 +33,21 @@ htmltools::img(src = knitr::image_uri(system.file("reports","CDS_logo.png",packa
                style = 'position:absolute; top:10px; left:75%')
 ```
 
+```{r, include = F}
+bscols(plot_ly(),datatable(tibble(),style="bootstrap"))
+```
+
 ```{r load data,include = F}
 if (is.null(params$in_path)) {stop("You must specify the results directory")}
 df <- read_csv(str_c(params$in_path,"/data.csv"))
 y <- as.matrix(df[,-1])
 rownames(y) <- df[[1]]
-meta_data <- read_csv(str_c(params$in_path,"/meta_data.csv"))
 disc_table <- read_csv(str_c(params$in_path,"/discrete_table.csv"))
 lin_table <- read_csv(str_c(params$in_path,"/lin_association_table.csv"))
 rf_table <- read_csv(str_c(params$in_path,"/rf_table.csv"))
 ```
 
-This report presents biomarker analysis results for one or more response profiles. <br/> 
+This report presents biomarker analysis results for two or more response profiles. <br/> 
 To navigate through this report click on the blue tabs under each heading.
 
 # Response profiles {.tabset}
@@ -54,7 +57,10 @@ These tabs provide information about the response profiles included in this repo
 ## Info
 
 ```{r echo = FALSE}
-datatable(meta_data, style="bootstrap", width="100%",options = list(lengthChange = FALSE))
+if(file.exists(str_c(params$in_path,"/meta_data.csv"))){
+  meta_data <- read_csv(str_c(params$in_path,"/meta_data.csv"))
+  datatable(meta_data, style="bootstrap", width="100%",options = list(lengthChange = FALSE))
+}
 ```
 
 ## Correlation
