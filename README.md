@@ -8,6 +8,7 @@ helpful functions and standard reports.
 
 ``` r
 library(devtools)
+devtools::install_github("broadinstitute/cdsr_models")
 devtools::install_github("broadinstitute/cdsr_biomarker")
 ```
 
@@ -19,47 +20,25 @@ library(cdsrbiomarker)
 
 ## Taiga
 
-Many of the function in the package use data which is stored on taiga.
+Many of the functions in the package use data which is stored on taiga.
 If you are at the Broad you can install taigr the taiga client for R by
 following the instructions
 [here](https://github.com/broadinstitute/taigr).
 
-## Biomarker functions
+## Functions
 
-These functions are used to analyze potential biomarkers based on a
-response vector and a feature matrix.
+### get\_biomarkers
 
-### discrete\_test
-
-Compares binary features, such as lineage and mutation, running a t-test
-on the difference in mean response between cell lines with the feature
-and without it. Run on response vector `y` and feature matrix `X`
-
-``` r
-cdsrbiomarker::discrete_test(X, y)
-```
-
-### lin\_associations
-
-Compares continuous features, such as gene expression, calculating
-correlations between response and each feature. Run on feature matrix
-`A`, response vector `y`, and an optional matrix of confounders `W`.
-Other parameters can also be tuned and are explained in the function
-documentation.
+`get_biomarkers` is a wrapper around the `discrete_test`,
+`lin_associations`, and `random_forest` functions in `cdsrmodels`. It
+takes a response vector `y` and then loads features matricies from
+Taiga. The appropriate modeling functions are applied to each feature
+matrix and the results are returned and saved in the `out_path`
+directory if it is
+specified.
 
 ``` r
-cdsrbiomarker::lin_associations(A, y, W=NULL)
-```
-
-### random\_forest
-
-Fits a random forest to a feature matrix `X` and a response vector `y`
-returning estimates of variable importance for each feature, as well as
-model level statistics such as R-squared. Other parameters can also be
-tuned and are explained in the function documentation.
-
-``` r
-cdsrbiomarker::random_forest(X, y)
+biomarker_results <- get_biomarkers(y, p_cutoff=0.1, out_path="~/Desktop/example")
 ```
 
 ## Reports

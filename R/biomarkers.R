@@ -2,6 +2,7 @@ require(tidyverse)
 require(taigr)
 require(magrittr)
 require(readr)
+require(cdsrmodels)
 
 #' Gets the biomarkers for each column in a matrix of responses using:
 #' random_forest
@@ -84,7 +85,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       # get overlapping data
       overlap <- dplyr::intersect(rownames(X), names(y))
       # calculate correlations
-      res.lin <- cdsrbiomarker::lin_associations(X[overlap,], y[overlap],scale.A = F)
+      res.lin <- cdsrmodels::lin_associations(X[overlap,], y[overlap],scale.A = F)
 
       # if specified p-value cutoff, filter values above cutoff
       if(!is.null(p_cutoff)) {
@@ -110,7 +111,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       y <- y[is.finite(y)]
 
       overlap <- dplyr::intersect(rownames(X), names(y))
-      res.disc <- cdsrbiomarker::discrete_test(X[overlap,], y[overlap])
+      res.disc <- cdsrmodels::discrete_test(X[overlap,], y[overlap])
 
       if(!is.null(p_cutoff)) {
         res.disc %<>% dplyr::filter(p.value <= p_cutoff)
@@ -129,7 +130,7 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       y <- y[is.finite(y)]
 
       overlap <- dplyr::intersect(rownames(X), names(y))
-      res.rf <- cdsrbiomarker::random_forest(X[overlap,], y[overlap])
+      res.rf <- cdsrmodels::random_forest(X[overlap,], y[overlap])
       random_forest_table %<>% dplyr::bind_rows(res.rf$model_table %>%
            dplyr::mutate(pert = pert, feature_set = feat))
     }
