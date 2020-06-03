@@ -86,7 +86,8 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       overlap <- dplyr::intersect(rownames(X), names(y))
       # calculate correlations
       res.lin <- cdsrmodels::lin_associations(X[overlap,], y[overlap])$res.table
-      res.lin <- tibble::as_tibble(res.lin)
+      res.lin <- tibble::as_tibble(res.lin) %>%
+        dplyr::mutate(pert = pert)
 
       # append to output tables
       linear_table %<>% dplyr::bind_rows(res.lin %>%

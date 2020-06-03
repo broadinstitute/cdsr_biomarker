@@ -144,8 +144,8 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
 
 # Linear association {.tabset}
 
-These tabs presents results for continuous features. The **z-score** and **q-value** are calculated using linear modeling approach. 
-Specifically, the **z-score** is the mean/standard deviation of the moderated effect size based on adaptive shrinkage.
+These tabs presents results for continuous features. The **effect size** and **q-value** are calculated using linear modeling approach. 
+Specifically, the **effect size** is the mean moderated effect size based on adaptive shrinkage.
 
 ```{r linear association, results = 'asis', echo = FALSE}
 for (cur_feature_type in lin_table$feature_type %>% unique()) {
@@ -157,7 +157,7 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
       them in the table.\n\n')
     
     df <- lin_table %>% 
-      dplyr::filter(feature_type == cur_feature_type & dep.var == cur_pert & qvalue < .1) %>%
+      dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & qvalue < .1) %>%
       arrange(qvalue) %>% head(2000) %>% 
       transmute(feature = str_sub(ind.var,0,20),`effect size` = round(PosteriorMean,4),
                 `-log10(q-value)` = round(-log10(qvalue),4),
@@ -194,9 +194,9 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       across the response profiles are shown. \n\n')
-  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(dep.var) %>% 
-    dplyr::mutate(rank = rank(qvalue)) %>% select(feature,rank,dep.var) %>% 
-    spread(key = "dep.var",value = "rank") %>% 
+  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
+    dplyr::mutate(rank = rank(qvalue)) %>% select(feature,rank,pert) %>% 
+    spread(key = "pert",value = "rank") %>% 
     tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   ranks[ranks > 500] <- 500
