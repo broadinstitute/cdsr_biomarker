@@ -4,8 +4,12 @@
 \alias{generate_single_profile_biomarker_report}
 \title{Generates the single response profile biomarker report}
 \usage{
-generate_single_profile_biomarker_report(out_path, title, Y = NULL,
-  meta_data = NULL)
+generate_single_profile_biomarker_report(
+  out_path,
+  title,
+  Y = NULL,
+  meta_data = NULL
+)
 }
 \arguments{
 \item{out_path}{string path to folder. If Y is NULL this folder should contain biomarker

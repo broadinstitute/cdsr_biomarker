@@ -28,19 +28,19 @@ require(cdsrmodels)
 #'   PearsonScore: the Pearson correlation of predicted and observed responses. \cr
 #'   pert: the column names of Y \cr
 #'   }
-#'   \item{lin_table}{A table with the following columns: \cr
-#'   feature:  column names of A \cr
-#'   p.val: p-values computed for the null-hypothesis beta = 0 \cr
-#'   q.val: q-values computed using Benjamini-Hotchberg method \cr
-#'   n: number of non-missing values for each column of A \cr
-#'   betahat: estimated linear coefficient controlled for W \cr
-#'   sebetahat: standard error for the estimate of beta \cr
-#'   sebetahat: standard error for the estimate of beta \cr
-#'   lfdr: local and global fdr values computed using adaptive shrinkage as \cr
-#'   qvalue: local and global fdr values computed using adaptive shrinkage as \cr
-#'   PosteriorMean: moderated effect size estimates again computed with adaptive shrinkage \cr
-#'   PosteriorSD: standard deviations of moderated effect size estimates \cr
-#'   z.score: z-score PosteriorMean/PosteriorSD \cr
+#'   \item{lin_table}{A table with the following columns (values calculated with adaptive shrinkage): \cr
+#'   betahat: estimated linear coefficient controlled for W. \cr
+#'   sebetahat: standard error for the estimate of beta. \cr
+#'   NegativeProb: posterior probabilities that beta is negative. \cr
+#'   PositiveProb: posterior probabilities that beta is positive \cr
+#'   lfsr: local and global fsr values. \cr
+#'   svalue: s-values.\cr
+#'   lfdr: local and global fdr values. \cr
+#'   qvalue: q-values for the effect size estimates. \cr
+#'   PosteriorMean: moderated effect size estimates. \cr
+#'   PosteriorSD: standard deviations of moderated effect size estimates. \cr
+#'   dep.var: dependent variables (column names of Y). \cr
+#'   ind.var: independent variables (column names of X). \cr
 #'   }
 #'   \item{disc_table}{A table with the following columns:
 #'   feature: the column names of X. \cr
@@ -85,16 +85,12 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       # get overlapping data
       overlap <- dplyr::intersect(rownames(X), names(y))
       # calculate correlations
-      res.lin <- cdsrmodels::lin_associations(X[overlap,], y[overlap],scale.A = F)
-
-      # if specified p-value cutoff, filter values above cutoff
-      if(!is.null(p_cutoff)) {
-        res.lin %<>% dplyr::filter(p.val <= p_cutoff)
-      }
+      res.lin <- cdsrmodels::lin_associations(X[overlap,], y[overlap])$res.table
+      res.lin <- tibble::as_tibble(res.lin)
 
       # append to output tables
       linear_table %<>% dplyr::bind_rows(res.lin %>%
-          dplyr::mutate(pert = pert, feature_type = feat))
+          dplyr::mutate(feature_type = feat))
     }
   }
   # repeat for discrete t-test
@@ -112,7 +108,8 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
 
       overlap <- dplyr::intersect(rownames(X), names(y))
       res.disc <- cdsrmodels::discrete_test(X[overlap,], y[overlap])
-
+      
+      # if cutoff specified filter p values above cutoff
       if(!is.null(p_cutoff)) {
         res.disc %<>% dplyr::filter(p.value <= p_cutoff)
       }
