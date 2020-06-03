@@ -157,9 +157,9 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
       them in the table.\n\n')
     
     df <- lin_table %>% 
-      dplyr::filter(feature_type == cur_feature_type & pert == cur_pert & qvalue < .1) %>%
+      dplyr::filter(feature_type == cur_feature_type & dep.var == cur_pert & qvalue < .1) %>%
       arrange(qvalue) %>% head(2000) %>% 
-      transmute(feature = str_sub(feature,0,20),`z-score` = round(z.score,4),
+      transmute(feature = str_sub(ind.var,0,20),`effect size` = round(PosteriorMean,4),
                 `-log10(q-value)` = round(-log10(qvalue),4),
                 color = qvalue < .01)
 
@@ -172,11 +172,11 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
     colors <- df %>% arrange(color) %>% 
       mutate(color = ifelse(color,"darkorange","darkgrey")) %>% .[["color"]] %>% unique()
     
-    p <- plot_ly(type = "scatter", data = sd, x = ~`z-score`, y = ~`-log10(q-value)`,
+    p <- plot_ly(type = "scatter", data = sd, x = ~`effect size`, y = ~`-log10(q-value)`,
                text = ~feature, hoverinfo = "text", color = df$color, 
                colors = colors,
                marker = list(line = list(width = 0))) %>% 
-      layout(xaxis = list(title = "z-score"), yaxis = list(title = "-log10(q-value)"),
+      layout(xaxis = list(title = "effect size"), yaxis = list(title = "-log10(q-value)"),
              showlegend = FALSE,updatemenus = updatemenus) %>% config(displayModeBar = F)
     
      p2 <-bscols(
@@ -194,9 +194,9 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
   cat('\n\n### shared \n\n')
   cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
       across the response profiles are shown. \n\n')
-  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
+  ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(dep.var) %>% 
     dplyr::mutate(rank = rank(qvalue)) %>% select(feature,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% 
+    spread(key = "dep.var",value = "rank") %>% 
     tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks,na.rm = T)
   ranks[ranks > 500] <- 500
