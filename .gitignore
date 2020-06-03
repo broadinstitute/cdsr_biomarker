@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 # pkgdown site
 docs/
+
+# notebook .html files
+*.nb.html
