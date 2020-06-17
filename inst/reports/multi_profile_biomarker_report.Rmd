@@ -47,6 +47,10 @@ lin_table <- read_csv(str_c(params$in_path,"/lin_association_table.csv"))
 rf_table <- read_csv(str_c(params$in_path,"/rf_table.csv"))
 ```
 
+```{r}
+if(disc_table$pert %>% unique() %>% length() < 2){stop("Biomarker results tables must contain more than one perturbation. Try single_profile_biomarker_report instead.")}
+```
+
 This report presents biomarker analysis results for two or more response profiles. <br/> 
 To navigate through this report click on the blue tabs under each heading.
 
