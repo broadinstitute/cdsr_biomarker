@@ -126,17 +126,16 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
      
      c('\n\n')
      cat(htmltools::knit_print.shiny.tag(p2))
-     #cat(htmltools::renderTags(p2)$html)
      c('\n\n')
   }
   cat('\n\n### shared \n\n')
-  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
-      across the response profiles are shown. \n\n')
+  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. 
+      The 50 biomarkers with the lowest average rank across the response profiles are shown. \n\n')
   ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% 
     tibble::column_to_rownames(var = "feature") %>% as.matrix()
-  ranks[is.na(ranks)] <- max(ranks,na.rm = T)
+  ranks[is.na(ranks)] <- max(ranks, na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
   fig <- heatmaply(t(ranks[top_shared_biomarkers,]),dendrogram = "none",colors = viridis(n = 256, direction = -1),
                    column_text_angle = 90,na.rm = FALSE,key.title = "rank") %>% config(displayModeBar = F)
@@ -196,13 +195,13 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
      c('\n\n')
   }
   cat('\n\n### shared \n\n')
-  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
-      across the response profiles are shown. \n\n')
+  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. 
+      The 50 biomarkers with the lowest average rank across the response profiles are shown. \n\n')
   ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = rank(qvalue)) %>% select(ind.var,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% 
     tibble::column_to_rownames(var = "ind.var") %>% as.matrix()
-  ranks[is.na(ranks)] <- max(ranks,na.rm = T)
+  ranks[is.na(ranks)] <- max(ranks, na.rm = T)
   ranks[ranks > 500] <- 500
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
   fig <- heatmaply(t(ranks[top_shared_biomarkers,]),dendrogram = "none",colors = viridis(n = 256, direction = -1),
@@ -267,13 +266,13 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
      c('\n\n')
   }
   cat('\n\n### shared \n\n')
-  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. The 50 biomarkers with the lowest average rank are
-      across the response profiles are shown. \n\n')
+  cat('\n\n To generate this plot biomarkers for each response profile are ranked by q-value. 
+      The 50 biomarkers with the lowest average ranks across the response profiles are shown. \n\n')
   ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
     spread(key = "pert",value = "rank") %>% 
     tibble::column_to_rownames(var = "feature") %>% as.matrix()
-  ranks[is.na(ranks)] <- max(ranks,na.rm = T)
+  ranks[is.na(ranks)] <- max(ranks, na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
   fig <- heatmaply(t(ranks[top_shared_biomarkers,]),dendrogram = "none",colors = viridis(n = 256, direction = -1),
                    column_text_angle = 90,na.rm = FALSE,key.title = "rank") %>% config(displayModeBar = F)
