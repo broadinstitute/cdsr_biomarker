@@ -19,7 +19,7 @@ folder}
 \item{title}{string title for the report}
 
 \item{Y}{optional n x 1 numerical matrix of responses to perturbations,
-rownames must be Arxspan IDs (missing values are allowed).}
+rownames must be CCLE names (missing values are allowed).}
 
 \item{meta_data}{optional a dataframe containing meta data to include in the report}
 }

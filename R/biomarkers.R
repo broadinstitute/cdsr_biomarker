@@ -205,7 +205,7 @@ generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, m
 #'  folder
 #' @param title string title for the report
 #' @param Y optional n x 1 numerical matrix of responses to perturbations,
-#'   rownames must be Arxspan IDs (missing values are allowed).
+#'   rownames must be CCLE names (missing values are allowed).
 #' @param meta_data optional a dataframe containing meta data to include in the report
 #'
 #' @export
@@ -226,7 +226,7 @@ generate_single_profile_biomarker_report <- function(out_path, title, Y = NULL, 
   
   if(!is.null(Y)) {
     get_biomarkers(Y, out_path = out_path)
-    Y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
+    Y %>% as_tibble(rownames = "ccle_name") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
   }
   if(!is.null(meta_data)) {
     meta_data %>% write_csv(paste(out_path, "meta_data.csv", sep = "/"))
