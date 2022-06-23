@@ -195,7 +195,7 @@ generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, m
   rmarkdown::render(system.file("reports", "multi_profile_biomarker_report.Rmd",
                                 package = "cdsrbiomarker"),
                     params = list(in_path = out_path, title = title),
-                    output_dir = out_path,output_file = title)
+                    output_dir = out_path, output_file = title)
 }
 
 #' Generates the single response profile biomarker report

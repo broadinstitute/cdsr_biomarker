@@ -4,7 +4,7 @@ output:
   github_document: 
   html_notebook:
 params:
-  in_path: NULL
+  in_path: ~/Desktop/test_bio
   title: "TITLE"
 ---
 
@@ -133,7 +133,7 @@ for (cur_feature_type in disc_table$feature_type %>% unique()) {
       The 50 biomarkers with the lowest average rank across the response profiles are shown. \n\n')
   ranks <- disc_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = dense_rank(q.value)) %>% select(feature,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% 
+    tidyr::pivot_wider(names_from = "pert", values_from = "rank", values_fn = min) %>%
     tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks, na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
@@ -199,7 +199,7 @@ for (cur_feature_type in lin_table$feature_type %>% unique()) {
       The 50 biomarkers with the lowest average rank across the response profiles are shown. \n\n')
   ranks <- lin_table %>% filter(feature_type == cur_feature_type) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = rank(qvalue)) %>% select(ind.var,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% 
+    tidyr::pivot_wider(names_from = "pert", values_from = "rank", values_fn = min) %>% 
     tibble::column_to_rownames(var = "ind.var") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks, na.rm = T)
   ranks[ranks > 500] <- 500
@@ -270,7 +270,7 @@ for (cur_feature_set in rf_table$feature_set %>% unique()) {
       The 50 biomarkers with the lowest average ranks across the response profiles are shown. \n\n')
   ranks <- rf_table %>% filter(feature_set == cur_feature_set) %>% dplyr::group_by(pert) %>% 
     dplyr::mutate(rank = rank(-RF.imp.mean)) %>% select(feature,rank,pert) %>% 
-    spread(key = "pert",value = "rank") %>% 
+    tidyr::pivot_wider(names_from = "pert", values_from = "rank", values_fn = min) %>%
     tibble::column_to_rownames(var = "feature") %>% as.matrix()
   ranks[is.na(ranks)] <- max(ranks, na.rm = T)
   top_shared_biomarkers <- ranks %>% rowMeans() %>% sort() %>% head(50) %>% names()
