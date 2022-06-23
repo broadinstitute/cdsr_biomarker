@@ -1,5 +1,4 @@
 require(tidyverse)
-require(taigr)
 require(magrittr)
 require(readr)
 require(cdsrmodels)
@@ -10,7 +9,7 @@ require(cdsrmodels)
 #' discrete_test
 #'
 #' @param Y n x p numerical matrix of responses to perturbations,
-#'   rownames must be Arxspan IDs (missing values are allowed).
+#'   rownames must be CCLE names (missing values are allowed).
 #' @param p_cutoff maximum p-value in output tables (to keep them smaller), defaults to 0.1
 #' @param out_path if specified, string path to folder to write results to as a .csv
 #'
@@ -63,10 +62,14 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   require(tidyverse)
 
   # lists tracking which feature sets are associated with which functions
-  rf_data <- c("all_features", "ccle_features")
-  discrete_data <- c("lineage", "mutation")
-  linear_data <- c("copy_number", "dependency_shRNA", "dependency_XPR",
-                  "expression", "miRNA", "repurposing", "RPPA", "total_proteome")
+  rf_data <- c("x-all", "x-ccle")
+  discrete_data <- c("lin", "mut")
+  linear_data <- c("cna", "shrna", "xpr", "ge", "mirna", "rep", "rppa", "prot")
+  
+  # repurposing metadata
+  rep_meta <- data.table::fread("https://s3.amazonaws.com/biomarker.clue.io/.cache/rep_info.csv") %>%
+    dplyr::select(column_name, name) %>%
+    dplyr::mutate(column_name = paste0("REP_", column_name))
 
 
   # output tables
@@ -78,8 +81,8 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   for(feat in linear_data) {
 
     # load feature set
-    X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
-                                data.version=5, data.file=feat, quiet=T)
+    X <- data.table::fread(paste0("https://s3.amazonaws.com/biomarker.clue.io/.cache/", feat, ".csv")) %>%
+      column_to_rownames("V1") %>% as.matrix()
 
     # for each perturbation get results
     for(pert in colnames(Y)) {
@@ -93,6 +96,14 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
       res.lin <- cdsrmodels::lin_associations(X[overlap,], y[overlap])$res.table
       res.lin <- tibble::as_tibble(res.lin) %>%
         dplyr::mutate(pert = pert)
+      
+      if (feat == "rep") {
+        res.lin %<>%
+          dplyr::left_join(rep_meta, by = c("ind.var" = "column_name")) %>%
+          dplyr::select(-ind.var) %>%
+          dplyr::rename(ind.var = name) %>%
+          dplyr::mutate(ind.var = paste("REP", ind.var, sep = "_"))
+      }
 
       # append to output tables
       linear_table %<>% dplyr::bind_rows(res.lin %>%
@@ -102,8 +113,8 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   # repeat for discrete t-test
   for(feat in discrete_data) {
 
-    X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
-                                data.version=5, data.file=feat, quiet=T)
+    X <- data.table::fread(paste0("https://s3.amazonaws.com/biomarker.clue.io/.cache/", feat, ".csv")) %>%
+      column_to_rownames("V1") %>% as.matrix()
 
     # only do test for colummns with more that 1 in group
     X <- X[,apply(X, 2, function(x) sum(x) > 1)]
@@ -126,8 +137,9 @@ get_biomarkers <- function(Y, p_cutoff=0.1, out_path=NULL) {
   }
   # repeat for random forest
   for(feat in rf_data) {
-    X <- taigr::load.from.taiga(data.name='biomarker-features-699b',
-                                data.version=5, data.file=feat, quiet=T)
+    X <- data.table::fread(paste0("https://s3.amazonaws.com/biomarker.clue.io/.cache/", feat, ".csv")) %>%
+      column_to_rownames("V1") %>% as.matrix()
+    
     for(pert in colnames(Y)) {
       y <- Y[,pert]; names(y) <- rownames(Y)
       y <- y[is.finite(y)]
@@ -171,11 +183,11 @@ generate_multi_profile_biomarker_report <- function(out_path, title, Y = NULL, m
   require(tidyverse)
   
   stopifnot(file.exists(out_path))
-  out_path <- trimws(out_path,"right","/")
+  out_path <- trimws(out_path, "right", "/")
   
   if(!is.null(Y)) {
     get_biomarkers(Y, out_path = out_path)
-    Y %>% as_tibble(rownames = "arxspan_id") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
+    Y %>% as_tibble(rownames = "ccle_name") %>% write_csv(paste(out_path, "data.csv", sep = "/"))
   }
   if(!is.null(meta_data)) {
     meta_data %>% write_csv(paste(out_path, "meta_data.csv", sep = "/"))
