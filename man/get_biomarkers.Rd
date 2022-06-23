@@ -11,7 +11,7 @@ get_biomarkers(Y, p_cutoff = 0.1, out_path = NULL)
 }
 \arguments{
 \item{Y}{n x p numerical matrix of responses to perturbations,
-rownames must be Arxspan IDs (missing values are allowed).}
+rownames must be CCLE names (missing values are allowed).}
 
 \item{p_cutoff}{maximum p-value in output tables (to keep them smaller), defaults to 0.1}
 
