@@ -4,7 +4,7 @@ output:
   github_document: 
   html_notebook:
 params:
-  in_path: ~/Desktop/test_bio
+  in_path: NULL
   title: "TITLE"
 ---
 
